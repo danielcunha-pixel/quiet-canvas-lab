@@ -591,24 +591,33 @@
       position: absolute;
       background: var(--color-signal);
       color: var(--color-ink);
-      font-weight: 700;
-      font-size: 11px;
-      padding: 3px 8px;
+      padding: 5px 10px;
       border-radius: 6px;
       letter-spacing: -0.01em;
       box-shadow: var(--shadow-pop);
-      transform: translate(-50%, -100%) translateY(-6px);
+      transform: translate(-50%, -100%);
       white-space: nowrap;
-      font-variant-numeric: tabular-nums;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      align-items: center;
+      transition: opacity var(--dur-fast) var(--ease-out);
     }
-    .chart__peak::after {
-      content: "";
-      position: absolute;
-      bottom: -3px; left: 50%;
-      width: 8px; height: 8px;
-      background: var(--color-signal);
-      transform: translateX(-50%) rotate(45deg);
-      border-radius: 1px;
+    .chart__peak-value {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+    .chart__peak-date {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      opacity: 0.6;
+      line-height: 1.1;
     }
     .chart__peak-dot {
       position: absolute;
@@ -617,6 +626,18 @@
       border: 3px solid var(--color-accent);
       border-radius: 50%;
       transform: translate(-50%, -50%);
+      pointer-events: none;
+      transition: opacity var(--dur-fast) var(--ease-out);
+    }
+    .chart svg [data-chart-line],
+    .chart svg [data-chart-fill] {
+      pointer-events: none;
+    }
+    .chart svg [data-chart-line] {
+      will-change: stroke-dashoffset;
+    }
+    .chart svg [data-chart-hit] {
+      cursor: crosshair;
     }
     .chart__range {
       display: flex;
@@ -633,6 +654,7 @@
       transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
     }
     .chart__range button:hover { background: var(--color-paper-3); color: var(--color-ink); }
+    .chart__range button[data-hidden="true"] { display: none; }
     .chart__range button[aria-pressed="true"] {
       background: var(--color-primary-50);
       color: var(--color-accent);
@@ -1660,34 +1682,40 @@
             </div>
           </div>
 
-          <div class="chart">
-            <svg viewBox="0 0 600 220" preserveAspectRatio="none" aria-label="Operations volume over the last 30 days">
+          <div class="chart" data-chart>
+            <svg viewBox="0 0 600 220" preserveAspectRatio="none" aria-label="Operations volume over time" role="img">
               <defs>
                 <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stop-color="oklch(35% 0.06 175)" stop-opacity="0.18"/>
                   <stop offset="100%" stop-color="oklch(35% 0.06 175)" stop-opacity="0"/>
                 </linearGradient>
               </defs>
-              <g stroke="oklch(92% 0.008 180)" stroke-width="1" stroke-dasharray="2 4">
+              <g stroke="oklch(92% 0.008 180)" stroke-width="1" stroke-dasharray="2 4" pointer-events="none">
                 <line x1="0" y1="40"  x2="600" y2="40"/>
                 <line x1="0" y1="90"  x2="600" y2="90"/>
                 <line x1="0" y1="140" x2="600" y2="140"/>
                 <line x1="0" y1="190" x2="600" y2="190"/>
               </g>
-              <path d="M0,160 C40,150 80,170 120,140 S200,90 240,100 C280,110 320,80 360,50 C400,30 440,80 480,110 C520,140 560,130 600,150 L600,220 L0,220 Z" fill="url(#chartFill)"/>
-              <path d="M0,160 C40,150 80,170 120,140 S200,90 240,100 C280,110 320,80 360,50 C400,30 440,80 480,110 C520,140 560,130 600,150" fill="none" stroke="oklch(35% 0.06 175)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path data-chart-fill fill="url(#chartFill)" d=""/>
+              <path data-chart-line fill="none" stroke="oklch(35% 0.06 175)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d=""/>
+              <line data-chart-guide x1="0" y1="0" x2="0" y2="220" stroke="oklch(35% 0.06 175 / 0.35)" stroke-width="1" stroke-dasharray="3 3" pointer-events="none" style="display: none;"/>
+              <rect data-chart-hit x="0" y="0" width="600" height="220" fill="transparent"/>
             </svg>
-            <span class="chart__peak-dot" style="left: 60%; top: 14%;" aria-hidden="true"></span>
-            <span class="chart__peak" style="left: 60%; top: 14%;" role="note">412 tasks</span>
+            <div class="chart__peak-dot" data-chart-marker aria-hidden="true" style="display: none;"></div>
+            <div class="chart__peak" data-chart-tooltip role="status" aria-live="polite" style="display: none;">
+              <span class="chart__peak-value" data-tooltip-value>0</span>
+              <span class="chart__peak-date" data-tooltip-date>—</span>
+            </div>
           </div>
 
           <div class="chart__range" role="tablist" aria-label="Range">
-            <button type="button" aria-pressed="false">1D</button>
-            <button type="button" aria-pressed="false">5D</button>
-            <button type="button" aria-pressed="false">1M</button>
-            <button type="button" aria-pressed="true">3M</button>
-            <button type="button" aria-pressed="false">6M</button>
-            <button type="button" aria-pressed="false">1Y</button>
+            <button type="button" data-range-tab="1d" aria-pressed="false">1D</button>
+            <button type="button" data-range-tab="5d" aria-pressed="false">5D</button>
+            <button type="button" data-range-tab="1m" aria-pressed="true">1M</button>
+            <button type="button" data-range-tab="3m" aria-pressed="false">3M</button>
+            <button type="button" data-range-tab="6m" aria-pressed="false">6M</button>
+            <button type="button" data-range-tab="1y" aria-pressed="false">1Y</button>
+            <button type="button" data-range-tab="custom" aria-pressed="false" data-hidden="true">Custom</button>
           </div>
         </article>
 
@@ -2419,7 +2447,19 @@
         rangeStart = pendingStart ? new Date(pendingStart) : null;
         rangeEnd = pendingEnd ? new Date(pendingEnd) : null;
         triggerLabel.textContent = formatTrigger(rangeStart, rangeEnd);
+        document.dispatchEvent(new CustomEvent("chart:range-applied", {
+          detail: { start: rangeStart, end: rangeEnd, source: "picker" }
+        }));
         closePicker();
+      });
+
+      // External range changes (from the bottom tabs) — sync our committed
+      // state and the trigger label, without re-dispatching.
+      document.addEventListener("chart:range-applied", (event) => {
+        if (event.detail.source === "picker") return;
+        rangeStart = event.detail.start ? new Date(event.detail.start) : null;
+        rangeEnd = event.detail.end ? new Date(event.detail.end) : null;
+        triggerLabel.textContent = formatTrigger(rangeStart, rangeEnd);
       });
 
       // ── Sync pending with current when dropdown opens/closes via the
@@ -2441,6 +2481,341 @@
       // Initial render + trigger label
       render();
       triggerLabel.textContent = formatTrigger(rangeStart, rangeEnd);
+    })();
+  </script>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       Interactive chart — data-driven, animated entry + transitions,
+       hover tooltip 8px above the marker, sync with date picker + tabs,
+       Custom tab when the range doesn't match a preset.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <script>
+    (function () {
+      const chartCard = document.querySelector(".card--chart");
+      if (!chartCard) return;
+      const chart = chartCard.querySelector("[data-chart]");
+      if (!chart) return;
+
+      const svg = chart.querySelector("svg");
+      const fillPath = chart.querySelector("[data-chart-fill]");
+      const linePath = chart.querySelector("[data-chart-line]");
+      const guide = chart.querySelector("[data-chart-guide]");
+      const hit = chart.querySelector("[data-chart-hit]");
+      const marker = chart.querySelector("[data-chart-marker]");
+      const tooltip = chart.querySelector("[data-chart-tooltip]");
+      const tooltipValue = tooltip.querySelector("[data-tooltip-value]");
+      const tooltipDate = tooltip.querySelector("[data-tooltip-date]");
+      const rangeTabs = chartCard.querySelectorAll("[data-range-tab]");
+
+      const W = 600;
+      const H = 220;
+      const PAD_TOP = 20;
+      const PAD_BOTTOM = 20;
+      const DAY_MS = 24 * 60 * 60 * 1000;
+      const TODAY = new Date(2026, 4, 21); // 21 May 2026
+
+      const MONTHS_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+      let currentMarkers = [];
+      let currentStepHours = 24;
+      let isAnimating = false;
+
+      // ── Helpers ────────────────────────────────────────────────
+      function startOfDay(d) {
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      }
+      function sameDay(a, b) {
+        return a && b && startOfDay(a).getTime() === startOfDay(b).getTime();
+      }
+      function pad(n) { return String(n).padStart(2, "0"); }
+
+      function formatDateLabel(d, stepHours) {
+        if (stepHours < 24) {
+          return `${pad(d.getHours())}:00 · ${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}`;
+        }
+        if (stepHours >= 24 * 28) {
+          return `${MONTHS_SHORT[d.getMonth()]} ${d.getFullYear()}`;
+        }
+        return `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}, ${d.getFullYear()}`;
+      }
+
+      // Deterministic pseudo-random — same range → same data on every render.
+      function seededRandom(seed) {
+        let s = Math.abs(Math.floor(seed)) % 233280;
+        return () => {
+          s = (s * 9301 + 49297) % 233280;
+          return s / 233280;
+        };
+      }
+
+      // ── Data generation ────────────────────────────────────────
+      function generateData(start, end) {
+        // "All time" sentinel — pick a 12-month window ending today.
+        if (!start || !end) {
+          end = new Date(TODAY);
+          start = new Date(TODAY); start.setFullYear(start.getFullYear() - 1);
+        }
+        let s = new Date(start);
+        let e = new Date(end);
+        if (s > e) { const tmp = s; s = e; e = tmp; }
+
+        const daysSpan = Math.max(1, Math.round((e - s) / DAY_MS) + 1);
+
+        let stepHours;
+        if (daysSpan <= 2) stepHours = 1;            // hourly
+        else if (daysSpan <= 14) stepHours = 6;      // 4x/day
+        else if (daysSpan <= 90) stepHours = 24;     // daily
+        else if (daysSpan <= 365) stepHours = 24 * 7;// weekly
+        else stepHours = 24 * 30;                    // monthly
+
+        const stepMs = stepHours * 60 * 60 * 1000;
+        const rand = seededRandom(s.getTime() + daysSpan);
+        const points = [];
+        const totalSteps = Math.ceil((e - s) / stepMs) + 1;
+
+        for (let i = 0; i <= totalSteps; i++) {
+          const t = new Date(s.getTime() + i * stepMs);
+          if (t > e) break;
+
+          const dow = t.getDay();
+          const hour = t.getHours();
+          const weekendDip = (dow === 0 || dow === 6) ? -25 : 0;
+          const nightDip = stepHours < 24 && (hour < 6 || hour > 22) ? -45 : 0;
+          const trend = (i / Math.max(1, totalSteps)) * 55;
+          const waveLen = Math.max(2, totalSteps / 4);
+          const wave = Math.sin((i / waveLen) * Math.PI * 2) * 38;
+          const noise = (rand() - 0.5) * 60;
+          const base = 175;
+
+          const value = Math.max(20, Math.round(base + trend + wave + weekendDip + nightDip + noise));
+          points.push({ date: t, value });
+        }
+
+        return { points, stepHours };
+      }
+
+      // ── Path computation ───────────────────────────────────────
+      function computePaths(points) {
+        if (!points.length) return { line: "", area: "", markers: [] };
+        if (points.length === 1) {
+          const x = W / 2, y = H / 2;
+          return {
+            line: `M${x},${y}`,
+            area: "",
+            markers: [{ x, y, date: points[0].date, value: points[0].value }],
+          };
+        }
+
+        const maxVal = Math.max(60, Math.max.apply(null, points.map((p) => p.value))) * 1.15;
+        const minVal = 0;
+
+        const xs = points.map((p, i) => (i / (points.length - 1)) * W);
+        const ys = points.map((p) =>
+          H - PAD_BOTTOM - ((p.value - minVal) / (maxVal - minVal)) * (H - PAD_TOP - PAD_BOTTOM)
+        );
+
+        // Smooth cubic-bezier path
+        let line = `M${xs[0].toFixed(2)},${ys[0].toFixed(2)}`;
+        for (let i = 1; i < points.length; i++) {
+          const dx = xs[i] - xs[i - 1];
+          const cp1x = xs[i - 1] + dx * 0.4;
+          const cp2x = xs[i] - dx * 0.4;
+          line += ` C${cp1x.toFixed(2)},${ys[i - 1].toFixed(2)} ${cp2x.toFixed(2)},${ys[i].toFixed(2)} ${xs[i].toFixed(2)},${ys[i].toFixed(2)}`;
+        }
+        const area = line + ` L${xs[xs.length - 1].toFixed(2)},${H} L${xs[0].toFixed(2)},${H} Z`;
+
+        const markers = points.map((p, i) => ({ x: xs[i], y: ys[i], date: p.date, value: p.value }));
+        return { line, area, markers };
+      }
+
+      // ── Animations ─────────────────────────────────────────────
+      function drawInLine() {
+        const length = linePath.getTotalLength();
+        linePath.style.transition = "none";
+        linePath.style.strokeDasharray = length;
+        linePath.style.strokeDashoffset = length;
+        linePath.style.opacity = "1";
+        // Force reflow so the next transition takes effect.
+        void linePath.getBoundingClientRect();
+        linePath.style.transition = "stroke-dashoffset 700ms cubic-bezier(0.22, 0.61, 0.36, 1)";
+        linePath.style.strokeDashoffset = "0";
+      }
+
+      function renderChart(start, end, initial) {
+        const { points, stepHours } = generateData(start, end);
+        const { line, area, markers } = computePaths(points);
+        const newMarkers = markers;
+        const newStep = stepHours;
+
+        // Hide any open tooltip / marker / guide during transition.
+        guide.style.display = "none";
+        marker.style.display = "none";
+        tooltip.style.display = "none";
+
+        if (initial) {
+          linePath.setAttribute("d", line);
+          fillPath.setAttribute("d", area);
+          fillPath.style.opacity = "0";
+          fillPath.style.transition = "opacity 500ms ease-out 250ms";
+          currentMarkers = newMarkers;
+          currentStepHours = newStep;
+          requestAnimationFrame(() => {
+            drawInLine();
+            fillPath.style.opacity = "1";
+          });
+          return;
+        }
+
+        if (isAnimating) return;
+        isAnimating = true;
+
+        // Phase 1: fade out current chart
+        linePath.style.transition = "opacity 180ms ease-out";
+        fillPath.style.transition = "opacity 180ms ease-out";
+        linePath.style.opacity = "0";
+        fillPath.style.opacity = "0";
+
+        setTimeout(() => {
+          // Phase 2: swap paths and draw the new line in
+          linePath.setAttribute("d", line);
+          fillPath.setAttribute("d", area);
+          currentMarkers = newMarkers;
+          currentStepHours = newStep;
+
+          drawInLine();
+          fillPath.style.transition = "opacity 500ms ease-out 150ms";
+          fillPath.style.opacity = "1";
+
+          // Phase 3: free the lock after the draw-in finishes
+          setTimeout(() => { isAnimating = false; }, 750);
+        }, 200);
+      }
+
+      // ── Interaction ────────────────────────────────────────────
+      function onMouseMove(event) {
+        if (!currentMarkers.length || isAnimating) return;
+        const rect = svg.getBoundingClientRect();
+        const svgX = (event.clientX - rect.left) * (W / rect.width);
+
+        let nearest = currentMarkers[0];
+        let minDist = Infinity;
+        for (const m of currentMarkers) {
+          const d = Math.abs(m.x - svgX);
+          if (d < minDist) { minDist = d; nearest = m; }
+        }
+
+        // Guide line follows the nearest marker
+        guide.setAttribute("x1", nearest.x);
+        guide.setAttribute("x2", nearest.x);
+        guide.style.display = "";
+
+        // Marker + tooltip in screen coords relative to the chart container
+        const xScale = rect.width / W;
+        const yScale = rect.height / H;
+        const screenX = nearest.x * xScale;
+        const screenY = nearest.y * yScale;
+
+        marker.style.left = `${screenX}px`;
+        marker.style.top = `${screenY}px`;
+        marker.style.display = "";
+
+        // Tooltip 8px above the marker:
+        //   marker visible top = screenY - 6  (radius 6px)
+        //   tooltip bottom     = marker top - 8
+        //   with translate(-50%, -100%), tooltip `top` IS the bottom edge
+        //   ⇒ top = screenY - 14
+        tooltipValue.textContent = `${nearest.value.toLocaleString()} tasks`;
+        tooltipDate.textContent = formatDateLabel(nearest.date, currentStepHours);
+        tooltip.style.left = `${screenX}px`;
+        tooltip.style.top = `${screenY - 14}px`;
+        tooltip.style.display = "";
+      }
+
+      function onMouseLeave() {
+        guide.style.display = "none";
+        marker.style.display = "none";
+        tooltip.style.display = "none";
+      }
+
+      hit.addEventListener("mousemove", onMouseMove);
+      hit.addEventListener("mouseleave", onMouseLeave);
+
+      // ── Range tabs ─────────────────────────────────────────────
+      function rangeForTab(key) {
+        const today = startOfDay(TODAY);
+        const start = new Date(today);
+        switch (key) {
+          case "1d": return { start: new Date(today), end: new Date(today) };
+          case "5d": start.setDate(start.getDate() - 4); return { start, end: new Date(today) };
+          case "1m": start.setDate(start.getDate() - 29); return { start, end: new Date(today) };
+          case "3m": start.setMonth(start.getMonth() - 3); return { start, end: new Date(today) };
+          case "6m": start.setMonth(start.getMonth() - 6); return { start, end: new Date(today) };
+          case "1y": start.setFullYear(start.getFullYear() - 1); return { start, end: new Date(today) };
+        }
+        return null;
+      }
+
+      function detectPreset(start, end) {
+        if (!start || !end) return null;
+        const today = startOfDay(TODAY);
+        if (!sameDay(end, today)) return null;
+        if (sameDay(start, today)) return "1d";
+        const sStart = startOfDay(start);
+
+        const probes = [
+          ["5d", (() => { const x = new Date(today); x.setDate(x.getDate() - 4); return x; })()],
+          ["1m", (() => { const x = new Date(today); x.setDate(x.getDate() - 29); return x; })()],
+          ["3m", (() => { const x = new Date(today); x.setMonth(x.getMonth() - 3); return x; })()],
+          ["6m", (() => { const x = new Date(today); x.setMonth(x.getMonth() - 6); return x; })()],
+          ["1y", (() => { const x = new Date(today); x.setFullYear(x.getFullYear() - 1); return x; })()],
+        ];
+        for (const [key, probeStart] of probes) {
+          if (sameDay(sStart, probeStart)) return key;
+        }
+        return null;
+      }
+
+      function updateActiveTab(start, end) {
+        const preset = detectPreset(start, end);
+        const customTab = chartCard.querySelector('[data-range-tab="custom"]');
+
+        rangeTabs.forEach((tab) => {
+          if (tab.dataset.rangeTab === "custom") return;
+          tab.setAttribute("aria-pressed", tab.dataset.rangeTab === preset ? "true" : "false");
+        });
+
+        if (preset === null) {
+          customTab.removeAttribute("data-hidden");
+          customTab.setAttribute("aria-pressed", "true");
+        } else {
+          customTab.setAttribute("data-hidden", "true");
+          customTab.setAttribute("aria-pressed", "false");
+        }
+      }
+
+      rangeTabs.forEach((tab) => {
+        tab.addEventListener("click", (event) => {
+          event.stopPropagation();
+          if (tab.dataset.rangeTab === "custom") return; // not directly clickable
+          const range = rangeForTab(tab.dataset.rangeTab);
+          if (!range) return;
+          document.dispatchEvent(new CustomEvent("chart:range-applied", {
+            detail: { start: range.start, end: range.end, source: "tab" }
+          }));
+        });
+      });
+
+      // ── Wire to picker + tabs ─────────────────────────────────
+      document.addEventListener("chart:range-applied", (event) => {
+        renderChart(event.detail.start, event.detail.end, false);
+        updateActiveTab(event.detail.start, event.detail.end);
+      });
+
+      // ── Initial render ────────────────────────────────────────
+      const initEnd = startOfDay(TODAY);
+      const initStart = new Date(initEnd); initStart.setDate(initStart.getDate() - 29);
+      renderChart(initStart, initEnd, true);
+      updateActiveTab(initStart, initEnd);
     })();
   </script>
 </body>

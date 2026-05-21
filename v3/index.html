@@ -65,7 +65,9 @@
     /* ═══════════════ App shell ═══════════════ */
     .app {
       display: grid;
-      grid-template-columns: var(--sidebar-w) 1fr;
+      /* Sidebar column = visual sidebar width + 32px gutter (margin 16px each side)
+         so the floating sidebar keeps its original 232px width. */
+      grid-template-columns: calc(var(--sidebar-w) + 32px) 1fr;
       grid-template-rows: var(--topbar-h) 1fr;
       min-height: 100dvh;
     }

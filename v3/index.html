@@ -2191,6 +2191,14 @@
       }
 
       // ── Grid rendering ─────────────────────────────────────────
+      // Builds the structural day cells only (positions, dates, today).
+      // Range indicators (start/end/in-between) are painted SEPARATELY by
+      // paintRange() so that hovering doesn't recreate the DOM elements.
+      //
+      // The old approach (rebuild buttons on every mouseenter) had a subtle
+      // bug: between mousedown and mouseup, mouseenter could fire and destroy
+      // the button under the cursor, so the click event ended up on the grid
+      // container rather than the day — and pendingEnd never got set.
       function buildGrid(monthDate, gridEl) {
         gridEl.innerHTML = "";
         const year = monthDate.getFullYear();
@@ -2199,7 +2207,41 @@
         const offset = first.getDay(); // Sun = 0
         const start = new Date(year, month, 1 - offset);
 
-        // Determine the effective range for highlighting (hover preview support)
+        for (let i = 0; i < 42; i++) {
+          const d = startOfDay(new Date(start.getFullYear(), start.getMonth(), start.getDate() + i));
+          const outside = d.getMonth() !== month;
+          const isToday = sameDay(d, TODAY);
+
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "datepicker__day";
+          btn.textContent = d.getDate();
+          btn.setAttribute("aria-label", formatLong(d));
+          btn.dataset.dateStamp = d.getTime();  // for in-place paint lookup
+          if (outside) btn.dataset.outside = "true";
+          if (isToday) btn.dataset.today = "true";
+
+          btn.addEventListener("click", (event) => {
+            event.stopPropagation();
+            onDayClick(d);
+          });
+          btn.addEventListener("mouseenter", () => {
+            if (pendingStart && !pendingEnd) {
+              if (!sameDay(d, hoverDate)) {
+                hoverDate = d;
+                paintRange();
+              }
+            }
+          });
+
+          gridEl.appendChild(btn);
+        }
+      }
+
+      // Updates data-range-start / data-range-end / data-in-range attributes
+      // on existing day buttons — without destroying them. Called whenever
+      // the range or hover preview changes.
+      function paintRange() {
         let from = pendingStart;
         let to = pendingEnd;
         if (pendingStart && !pendingEnd && hoverDate) {
@@ -2211,45 +2253,29 @@
             to = hoverDate;
           }
         }
+        const fromTs = from ? startOfDay(from).getTime() : null;
+        const toTs = to ? startOfDay(to).getTime() : null;
+        const singleDay = fromTs !== null && fromTs === toTs;
 
-        for (let i = 0; i < 42; i++) {
-          const d = startOfDay(new Date(start.getFullYear(), start.getMonth(), start.getDate() + i));
-          const outside = d.getMonth() !== month;
-          const isStart = sameDay(d, from);
-          const isEnd = from && to && !sameDay(from, to) && sameDay(d, to);
-          const inBetween = from && to && d > startOfDay(from) && d < startOfDay(to);
-          const isToday = sameDay(d, TODAY);
+        picker.querySelectorAll(".datepicker__day").forEach((btn) => {
+          const ts = parseInt(btn.dataset.dateStamp, 10);
+          if (!ts) return;
 
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "datepicker__day";
-          btn.textContent = d.getDate();
-          btn.setAttribute("aria-label", formatLong(d));
-          if (outside) btn.dataset.outside = "true";
-          if (isToday) btn.dataset.today = "true";
-          if (isStart) btn.dataset.rangeStart = "true";
-          if (isEnd) btn.dataset.rangeEnd = "true";
-          if (inBetween) btn.dataset.inRange = "true";
+          const isStart = fromTs !== null && ts === fromTs;
+          const isEnd = !singleDay && toTs !== null && ts === toTs;
+          const inBetween = fromTs !== null && toTs !== null && ts > fromTs && ts < toTs;
 
-          btn.addEventListener("click", (event) => {
-            event.stopPropagation();
-            onDayClick(d);
-          });
-          btn.addEventListener("mouseenter", () => {
-            if (pendingStart && !pendingEnd) {
-              hoverDate = d;
-              redrawGrids();
-            }
-          });
-
-          gridEl.appendChild(btn);
-        }
+          if (isStart) btn.dataset.rangeStart = "true"; else delete btn.dataset.rangeStart;
+          if (isEnd) btn.dataset.rangeEnd = "true"; else delete btn.dataset.rangeEnd;
+          if (inBetween) btn.dataset.inRange = "true"; else delete btn.dataset.inRange;
+        });
       }
 
       function redrawGrids() {
         buildGrid(viewMonth, leftGrid);
         const nextMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1);
         buildGrid(nextMonth, rightGrid);
+        paintRange();
       }
 
       function render() {

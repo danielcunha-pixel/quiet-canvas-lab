@@ -75,14 +75,19 @@
       grid-column: 1;
       grid-row: 1 / span 2;
       position: sticky;
-      top: 0;
+      top: 16px;
       align-self: start;
-      height: 100dvh;
+      height: calc(100dvh - 32px);
+      margin: 16px;
       background: var(--color-paper-2);
-      border-right: var(--rule-hair) solid var(--color-rule);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
       display: flex;
       flex-direction: column;
       padding: var(--space-6) 0 var(--space-4);
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-rule-strong) transparent;
     }
     .sidebar__brand {
       display: flex;

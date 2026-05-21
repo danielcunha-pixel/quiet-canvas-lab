@@ -8,19 +8,22 @@
 
 :root {
   /* ════════════════════════════════════════════════════════════════════
-   * NEUTRAL — teal-tinted near-white ramp
+   * NEUTRAL — slate-green ramp (user-supplied)
+   * Cool-tinted, with the slate quality most visible in the midtones
+   * (500–700). Hue centred at ~195° (cyan-green), chroma peaks at 0.018
+   * in the middle and tapers toward both ends of the ramp.
    * ════════════════════════════════════════════════════════════════════ */
-  --color-neutral-0:    oklch(100%  0    0);
-  --color-neutral-50:   oklch(98.6% 0.003 180);
-  --color-neutral-100:  oklch(96.5% 0.005 180);
-  --color-neutral-200:  oklch(92.0% 0.008 180);
-  --color-neutral-300:  oklch(85.0% 0.010 180);
-  --color-neutral-400:  oklch(72.0% 0.012 180);
-  --color-neutral-500:  oklch(58.0% 0.014 180);
-  --color-neutral-600:  oklch(45.0% 0.014 180);
-  --color-neutral-700:  oklch(33.0% 0.014 180);
-  --color-neutral-800:  oklch(22.0% 0.014 180);
-  --color-neutral-900:  oklch(14.0% 0.013 180);
+  --color-neutral-0:    oklch(100%  0     0);
+  --color-neutral-50:   oklch(97.5% 0.003 200);
+  --color-neutral-100:  oklch(93.5% 0.004 200);
+  --color-neutral-200:  oklch(89.0% 0.006 198);
+  --color-neutral-300:  oklch(80.0% 0.010 196);
+  --color-neutral-400:  oklch(68.0% 0.015 192);
+  --color-neutral-500:  oklch(56.0% 0.018 192);
+  --color-neutral-600:  oklch(44.0% 0.018 192);
+  --color-neutral-700:  oklch(33.0% 0.014 195);
+  --color-neutral-800:  oklch(24.0% 0.010 198);
+  --color-neutral-900:  oklch(13.5% 0.007 200);
 
   /* ════════════════════════════════════════════════════════════════════
    * PRIMARY — deep teal / forest green (DaPay anchor)

@@ -994,6 +994,223 @@
     }
     .dropdown[data-open="true"] .dropdown__chev { transform: rotate(180deg); }
 
+    /* ═══════════════ Date range picker ═══════════════ */
+    /* Built on top of the dropdown framework — uses the same .dropdown +
+       data-dropdown wrapper + .dropdown__menu container for open/close.
+       The wider variant overrides the menu's min-width/padding so the
+       picker grid can breathe. v3 slate-green palette throughout. */
+    .dropdown--datepicker .dropdown__menu {
+      min-width: 0;
+      width: max-content;
+      max-width: calc(100vw - var(--space-8) * 2);
+      padding: 0;
+      overflow: hidden;
+      border-radius: var(--radius-lg);
+    }
+
+    .datepicker {
+      display: grid;
+      grid-template-columns: 200px 1fr 1fr;
+      width: 760px;
+      max-width: 100%;
+      background: var(--color-paper-2);
+    }
+
+    /* Presets column ─────────────────────── */
+    .datepicker__presets {
+      grid-column: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 14px 12px;
+      border-right: var(--rule-hair) solid var(--color-rule);
+    }
+    .datepicker__preset {
+      width: 100%;
+      padding: 9px 12px;
+      border: 0;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--color-ink-2);
+      text-align: left;
+      cursor: pointer;
+      transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+    }
+    .datepicker__preset:hover,
+    .datepicker__preset:focus-visible {
+      background: var(--color-paper-3);
+      color: var(--color-ink);
+      outline: none;
+    }
+    .datepicker__preset[data-active="true"] {
+      background: var(--color-paper-3);
+      color: var(--color-ink);
+      font-weight: 600;
+    }
+
+    /* Calendar column ─────────────────────── */
+    .datepicker__cal {
+      padding: 14px 16px;
+      min-width: 0;
+    }
+    .datepicker__cal--left  { grid-column: 2; border-right: var(--rule-hair) solid var(--color-rule); }
+    .datepicker__cal--right { grid-column: 3; }
+
+    .datepicker__head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .datepicker__head-display { display: inline-flex; gap: 6px; }
+    .datepicker__head-month,
+    .datepicker__head-year {
+      display: inline-flex;
+      align-items: center;
+      height: 32px;
+      padding: 0 12px;
+      border: var(--rule-hair) solid var(--color-rule);
+      border-radius: var(--radius-sm);
+      background: var(--color-paper-2);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: 700;
+      letter-spacing: -0.012em;
+      color: var(--color-ink);
+    }
+    .datepicker__head-nav { margin-left: auto; display: inline-flex; gap: 4px; }
+    .datepicker__nav {
+      width: 28px; height: 28px;
+      display: grid; place-items: center;
+      border: var(--rule-hair) solid var(--color-rule);
+      border-radius: var(--radius-sm);
+      background: var(--color-paper-2);
+      color: var(--color-ink-2);
+      cursor: pointer;
+      transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+    }
+    .datepicker__nav:hover { background: var(--color-paper-3); color: var(--color-ink); }
+    .datepicker__nav:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 1px; }
+    .datepicker__nav svg { width: 13px; height: 13px; }
+
+    .datepicker__weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+    .datepicker__weekday {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--color-ink-3);
+      padding: 6px 0;
+    }
+
+    .datepicker__grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+    .datepicker__day {
+      position: relative;
+      display: grid;
+      place-items: center;
+      height: 36px;
+      border: 0;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--color-ink);
+      cursor: pointer;
+      transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+    }
+    .datepicker__day:hover { background: var(--color-paper-3); }
+    .datepicker__day:focus-visible {
+      outline: 2px solid var(--color-focus);
+      outline-offset: -2px;
+    }
+    .datepicker__day[data-outside="true"] { color: var(--color-ink-mute); }
+    .datepicker__day[data-in-range="true"]:not([data-range-start="true"]):not([data-range-end="true"]) {
+      background: var(--color-accent-soft);
+      color: var(--color-accent-hover);
+    }
+    .datepicker__day[data-range-start="true"],
+    .datepicker__day[data-range-end="true"] {
+      background: var(--color-accent);
+      color: var(--color-ink-inv);
+      font-weight: 700;
+    }
+    .datepicker__day[data-today="true"]:not([data-range-start="true"]):not([data-range-end="true"]):not([data-in-range="true"]) {
+      background: var(--color-paper-sunk);
+      color: var(--color-ink);
+      font-weight: 700;
+    }
+
+    /* Footer ─────────────────────── */
+    .datepicker__foot {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+      padding: 14px 18px;
+      border-top: var(--rule-hair) solid var(--color-rule);
+      background: var(--color-paper-2);
+    }
+    .datepicker__range {
+      font-size: var(--text-sm);
+      color: var(--color-ink-3);
+      font-weight: 500;
+    }
+    .datepicker__range-value {
+      color: var(--color-ink);
+      font-weight: 700;
+      margin: 0 2px;
+    }
+    .datepicker__actions { display: inline-flex; gap: 8px; }
+    .datepicker__cancel,
+    .datepicker__apply {
+      height: 36px;
+      padding: 0 18px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      transition:
+        background var(--dur-fast) var(--ease-out),
+        border-color var(--dur-fast) var(--ease-out),
+        color var(--dur-fast) var(--ease-out);
+    }
+    .datepicker__cancel {
+      background: var(--color-paper-2);
+      border: var(--rule-hair) solid var(--color-rule);
+      color: var(--color-ink);
+    }
+    .datepicker__cancel:hover { background: var(--color-paper-3); }
+    .datepicker__apply {
+      background: var(--color-accent);
+      border: var(--rule-hair) solid var(--color-accent);
+      color: var(--color-ink-inv);
+      font-weight: 700;
+      padding: 0 22px;
+    }
+    .datepicker__apply:hover {
+      background: var(--color-accent-hover);
+      border-color: var(--color-accent-hover);
+    }
+
+    @media (max-width: 880px) {
+      .datepicker { width: min(100%, 360px); grid-template-columns: 1fr; }
+      .datepicker__cal--left { border-right: 0; border-bottom: var(--rule-hair) solid var(--color-rule); }
+    }
+
     /* ═══════════════ Reduced motion ═══════════════ */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { transition-duration: 1ms !important; animation-duration: 1ms !important; }
@@ -1343,42 +1560,95 @@
               <span class="chart-card__title" id="chart-title">Operations volume</span>
               <span class="chart-card__sub">Tasks completed across the fleet</span>
             </div>
-            <div class="dropdown" data-dropdown>
-              <button class="chart-card__filter" type="button" aria-haspopup="menu" aria-expanded="false" data-dropdown-trigger>
-                Apr 22 – May 21
+            <div class="dropdown dropdown--datepicker" data-dropdown>
+              <button class="chart-card__filter" type="button" aria-haspopup="dialog" aria-expanded="false" data-dropdown-trigger>
+                <span data-datepicker-trigger-label>22 Apr – 21 May, 2026</span>
                 <svg class="dropdown__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
               </button>
-              <div class="dropdown__menu" role="menu" aria-label="Date range">
-                <button class="dropdown__item" type="button" role="menuitemradio" aria-checked="false">
-                  <svg class="dropdown__item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
-                  <span class="dropdown__item-label">Last 24 hours</span>
-                  <span class="dropdown__item-trail">1D</span>
-                </button>
-                <button class="dropdown__item" type="button" role="menuitemradio" aria-checked="false">
-                  <svg class="dropdown__item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
-                  <span class="dropdown__item-label">Last 5 days</span>
-                  <span class="dropdown__item-trail">5D</span>
-                </button>
-                <button class="dropdown__item" type="button" role="menuitemradio" aria-checked="false">
-                  <svg class="dropdown__item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
-                  <span class="dropdown__item-label">Last month</span>
-                  <span class="dropdown__item-trail">1M</span>
-                </button>
-                <button class="dropdown__item" type="button" role="menuitemradio" aria-checked="true">
-                  <svg class="dropdown__item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
-                  <span class="dropdown__item-label">Last 3 months</span>
-                  <span class="dropdown__item-trail">3M</span>
-                </button>
-                <button class="dropdown__item" type="button" role="menuitemradio" aria-checked="false">
-                  <svg class="dropdown__item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
-                  <span class="dropdown__item-label">Last 6 months</span>
-                  <span class="dropdown__item-trail">6M</span>
-                </button>
-                <button class="dropdown__item" type="button" role="menuitemradio" aria-checked="false">
-                  <svg class="dropdown__item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
-                  <span class="dropdown__item-label">Last year</span>
-                  <span class="dropdown__item-trail">1Y</span>
-                </button>
+              <div class="dropdown__menu" role="dialog" aria-label="Pick date range">
+                <div class="datepicker" data-datepicker>
+                  <!-- Presets -->
+                  <div class="datepicker__presets" role="group" aria-label="Quick ranges">
+                    <button class="datepicker__preset" type="button" data-preset="today">Today</button>
+                    <button class="datepicker__preset" type="button" data-preset="last-7">Last 7 days</button>
+                    <button class="datepicker__preset" type="button" data-preset="last-30" data-active="true">Last 30 days</button>
+                    <button class="datepicker__preset" type="button" data-preset="last-3m">Last 3 months</button>
+                    <button class="datepicker__preset" type="button" data-preset="last-12m">Last 12 months</button>
+                    <button class="datepicker__preset" type="button" data-preset="mtd">Month to date</button>
+                    <button class="datepicker__preset" type="button" data-preset="ytd">Year to date</button>
+                    <button class="datepicker__preset" type="button" data-preset="all">All time</button>
+                  </div>
+
+                  <!-- Left calendar -->
+                  <div class="datepicker__cal datepicker__cal--left">
+                    <div class="datepicker__head">
+                      <div class="datepicker__head-display">
+                        <span class="datepicker__head-month" data-head-month-left>April</span>
+                        <span class="datepicker__head-year" data-head-year-left>2026</span>
+                      </div>
+                      <div class="datepicker__head-nav">
+                        <button class="datepicker__nav" type="button" data-nav="prev" aria-label="Previous month">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                        </button>
+                        <button class="datepicker__nav" type="button" data-nav="next" aria-label="Next month">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="datepicker__weekdays" aria-hidden="true">
+                      <span class="datepicker__weekday">Su</span>
+                      <span class="datepicker__weekday">Mo</span>
+                      <span class="datepicker__weekday">Tu</span>
+                      <span class="datepicker__weekday">We</span>
+                      <span class="datepicker__weekday">Th</span>
+                      <span class="datepicker__weekday">Fr</span>
+                      <span class="datepicker__weekday">Sa</span>
+                    </div>
+                    <div class="datepicker__grid" data-grid="left" role="grid"></div>
+                  </div>
+
+                  <!-- Right calendar -->
+                  <div class="datepicker__cal datepicker__cal--right">
+                    <div class="datepicker__head">
+                      <div class="datepicker__head-display">
+                        <span class="datepicker__head-month" data-head-month-right>May</span>
+                        <span class="datepicker__head-year" data-head-year-right>2026</span>
+                      </div>
+                      <div class="datepicker__head-nav">
+                        <button class="datepicker__nav" type="button" data-nav="prev" aria-label="Previous month">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                        </button>
+                        <button class="datepicker__nav" type="button" data-nav="next" aria-label="Next month">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="datepicker__weekdays" aria-hidden="true">
+                      <span class="datepicker__weekday">Su</span>
+                      <span class="datepicker__weekday">Mo</span>
+                      <span class="datepicker__weekday">Tu</span>
+                      <span class="datepicker__weekday">We</span>
+                      <span class="datepicker__weekday">Th</span>
+                      <span class="datepicker__weekday">Fr</span>
+                      <span class="datepicker__weekday">Sa</span>
+                    </div>
+                    <div class="datepicker__grid" data-grid="right" role="grid"></div>
+                  </div>
+
+                  <!-- Footer -->
+                  <div class="datepicker__foot">
+                    <div class="datepicker__range">
+                      Range:
+                      <span class="datepicker__range-value" data-range-start-display>22nd April, 2026</span>
+                      –
+                      <span class="datepicker__range-value" data-range-end-display>21st May, 2026</span>
+                    </div>
+                    <div class="datepicker__actions">
+                      <button class="datepicker__cancel" type="button" data-datepicker-cancel>Cancel</button>
+                      <button class="datepicker__apply" type="button" data-datepicker-apply>Apply</button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1822,8 +2092,12 @@
         });
       });
 
-      // Click outside any dropdown closes them
-      document.addEventListener("click", () => closeAll());
+      // Click outside any dropdown closes them. Clicks INSIDE an open
+      // dropdown (e.g. picking a day in the date picker) keep it open.
+      document.addEventListener("click", (event) => {
+        const inside = event.target.closest('[data-dropdown][data-open="true"]');
+        if (!inside) closeAll();
+      });
 
       // Escape closes whichever is open and returns focus to its trigger
       document.addEventListener("keydown", (event) => {
@@ -1837,6 +2111,293 @@
           }
         });
       });
+    })();
+  </script>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       Date range picker — stateful, range selection with hover preview,
+       8 working presets, two-month navigation. The dropdown framework
+       above handles open/close + click-outside + Esc; this module wires
+       the picker-specific behaviour.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <script>
+    (function () {
+      const picker = document.querySelector("[data-datepicker]");
+      if (!picker) return;
+
+      const dropdown = picker.closest("[data-dropdown]");
+      const trigger = dropdown.querySelector("[data-dropdown-trigger]");
+      const triggerLabel = trigger.querySelector("[data-datepicker-trigger-label]");
+      const leftGrid = picker.querySelector('[data-grid="left"]');
+      const rightGrid = picker.querySelector('[data-grid="right"]');
+      const leftMonth = picker.querySelector("[data-head-month-left]");
+      const leftYear = picker.querySelector("[data-head-year-left]");
+      const rightMonth = picker.querySelector("[data-head-month-right]");
+      const rightYear = picker.querySelector("[data-head-year-right]");
+      const startDisplay = picker.querySelector("[data-range-start-display]");
+      const endDisplay = picker.querySelector("[data-range-end-display]");
+
+      const MONTHS_LONG = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+      const MONTHS_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      const DAY_MS = 24 * 60 * 60 * 1000;
+
+      // Today is fixed to 2026-05-21 to match the rest of the demo data.
+      const TODAY = startOfDay(new Date(2026, 4, 21));
+
+      // Initial range: last 30 days (Apr 22 – May 21, 2026)
+      let rangeStart = startOfDay(new Date(2026, 3, 22));
+      let rangeEnd = TODAY;
+      let pendingStart = new Date(rangeStart);
+      let pendingEnd = new Date(rangeEnd);
+      let hoverDate = null;
+
+      // Left calendar starts on Apr 2026, right on May 2026 (so end-of-range is visible).
+      let viewMonth = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), 1);
+
+      // ── Helpers ────────────────────────────────────────────────
+      function startOfDay(d) {
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      }
+      function sameDay(a, b) {
+        return a && b && a.getTime() === b.getTime();
+      }
+      function ord(n) {
+        if (n % 100 >= 11 && n % 100 <= 13) return "th";
+        const last = n % 10;
+        return last === 1 ? "st" : last === 2 ? "nd" : last === 3 ? "rd" : "th";
+      }
+      function formatLong(d) {
+        if (!d) return "—";
+        return `${d.getDate()}${ord(d.getDate())} ${MONTHS_LONG[d.getMonth()]}, ${d.getFullYear()}`;
+      }
+      function formatTrigger(s, e) {
+        if (!s && !e) return "All time";
+        if (!s || !e) return "Pick a range";
+        const sameYear = s.getFullYear() === e.getFullYear();
+        if (sameYear) {
+          return `${s.getDate()} ${MONTHS_SHORT[s.getMonth()]} – ${e.getDate()} ${MONTHS_SHORT[e.getMonth()]}, ${e.getFullYear()}`;
+        }
+        return `${s.getDate()} ${MONTHS_SHORT[s.getMonth()]}, ${s.getFullYear()} – ${e.getDate()} ${MONTHS_SHORT[e.getMonth()]}, ${e.getFullYear()}`;
+      }
+      function daysBetween(a, b) {
+        return Math.round((startOfDay(b) - startOfDay(a)) / DAY_MS);
+      }
+
+      // ── Grid rendering ─────────────────────────────────────────
+      function buildGrid(monthDate, gridEl) {
+        gridEl.innerHTML = "";
+        const year = monthDate.getFullYear();
+        const month = monthDate.getMonth();
+        const first = new Date(year, month, 1);
+        const offset = first.getDay(); // Sun = 0
+        const start = new Date(year, month, 1 - offset);
+
+        // Determine the effective range for highlighting (hover preview support)
+        let from = pendingStart;
+        let to = pendingEnd;
+        if (pendingStart && !pendingEnd && hoverDate) {
+          if (hoverDate < pendingStart) {
+            from = hoverDate;
+            to = pendingStart;
+          } else {
+            from = pendingStart;
+            to = hoverDate;
+          }
+        }
+
+        for (let i = 0; i < 42; i++) {
+          const d = startOfDay(new Date(start.getFullYear(), start.getMonth(), start.getDate() + i));
+          const outside = d.getMonth() !== month;
+          const isStart = sameDay(d, from);
+          const isEnd = from && to && !sameDay(from, to) && sameDay(d, to);
+          const inBetween = from && to && d > startOfDay(from) && d < startOfDay(to);
+          const isToday = sameDay(d, TODAY);
+
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "datepicker__day";
+          btn.textContent = d.getDate();
+          btn.setAttribute("aria-label", formatLong(d));
+          if (outside) btn.dataset.outside = "true";
+          if (isToday) btn.dataset.today = "true";
+          if (isStart) btn.dataset.rangeStart = "true";
+          if (isEnd) btn.dataset.rangeEnd = "true";
+          if (inBetween) btn.dataset.inRange = "true";
+
+          btn.addEventListener("click", (event) => {
+            event.stopPropagation();
+            onDayClick(d);
+          });
+          btn.addEventListener("mouseenter", () => {
+            if (pendingStart && !pendingEnd) {
+              hoverDate = d;
+              redrawGrids();
+            }
+          });
+
+          gridEl.appendChild(btn);
+        }
+      }
+
+      function redrawGrids() {
+        buildGrid(viewMonth, leftGrid);
+        const nextMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1);
+        buildGrid(nextMonth, rightGrid);
+      }
+
+      function render() {
+        leftMonth.textContent = MONTHS_LONG[viewMonth.getMonth()];
+        leftYear.textContent = viewMonth.getFullYear();
+        const nextMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1);
+        rightMonth.textContent = MONTHS_LONG[nextMonth.getMonth()];
+        rightYear.textContent = nextMonth.getFullYear();
+
+        redrawGrids();
+
+        startDisplay.textContent = formatLong(pendingStart);
+        endDisplay.textContent = formatLong(pendingEnd);
+
+        updateActivePreset();
+      }
+
+      // ── Day click logic ────────────────────────────────────────
+      function onDayClick(d) {
+        const clicked = startOfDay(d);
+        if (!pendingStart || (pendingStart && pendingEnd)) {
+          // Fresh selection
+          pendingStart = clicked;
+          pendingEnd = null;
+        } else {
+          // Closing the range
+          if (clicked < pendingStart) {
+            pendingEnd = pendingStart;
+            pendingStart = clicked;
+          } else {
+            pendingEnd = clicked;
+          }
+        }
+        hoverDate = null;
+        render();
+      }
+
+      // ── Navigation ─────────────────────────────────────────────
+      picker.querySelectorAll("[data-nav]").forEach((btn) => {
+        btn.addEventListener("click", (event) => {
+          event.stopPropagation();
+          const dir = btn.dataset.nav === "prev" ? -1 : 1;
+          viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + dir, 1);
+          render();
+        });
+      });
+
+      // ── Presets ────────────────────────────────────────────────
+      function applyPreset(key) {
+        let s = null;
+        let e = null;
+        switch (key) {
+          case "today":
+            s = new Date(TODAY); e = new Date(TODAY);
+            break;
+          case "last-7":
+            s = new Date(TODAY); s.setDate(s.getDate() - 6); e = new Date(TODAY);
+            break;
+          case "last-30":
+            s = new Date(TODAY); s.setDate(s.getDate() - 29); e = new Date(TODAY);
+            break;
+          case "last-3m":
+            s = new Date(TODAY); s.setMonth(s.getMonth() - 3); e = new Date(TODAY);
+            break;
+          case "last-12m":
+            s = new Date(TODAY); s.setFullYear(s.getFullYear() - 1); e = new Date(TODAY);
+            break;
+          case "mtd":
+            s = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1); e = new Date(TODAY);
+            break;
+          case "ytd":
+            s = new Date(TODAY.getFullYear(), 0, 1); e = new Date(TODAY);
+            break;
+          case "all":
+            s = null; e = null;
+            break;
+        }
+        pendingStart = s ? startOfDay(s) : null;
+        pendingEnd = e ? startOfDay(e) : null;
+        if (s) viewMonth = new Date(s.getFullYear(), s.getMonth(), 1);
+        render();
+      }
+
+      function updateActivePreset() {
+        picker.querySelectorAll("[data-preset]").forEach((p) => p.removeAttribute("data-active"));
+        if (!pendingStart && !pendingEnd) {
+          picker.querySelector('[data-preset="all"]')?.setAttribute("data-active", "true");
+          return;
+        }
+        if (!pendingStart || !pendingEnd) return;
+        const checks = [
+          ["today", sameDay(pendingStart, TODAY) && sameDay(pendingEnd, TODAY)],
+          ["last-7", daysBetween(pendingStart, pendingEnd) === 6 && sameDay(pendingEnd, TODAY)],
+          ["last-30", daysBetween(pendingStart, pendingEnd) === 29 && sameDay(pendingEnd, TODAY)],
+          ["last-3m", sameDay(pendingEnd, TODAY) && sameDay(pendingStart, (() => { const x = new Date(TODAY); x.setMonth(x.getMonth() - 3); return startOfDay(x); })())],
+          ["last-12m", sameDay(pendingEnd, TODAY) && sameDay(pendingStart, (() => { const x = new Date(TODAY); x.setFullYear(x.getFullYear() - 1); return startOfDay(x); })())],
+          ["mtd", sameDay(pendingEnd, TODAY) && sameDay(pendingStart, startOfDay(new Date(TODAY.getFullYear(), TODAY.getMonth(), 1)))],
+          ["ytd", sameDay(pendingEnd, TODAY) && sameDay(pendingStart, startOfDay(new Date(TODAY.getFullYear(), 0, 1)))],
+        ];
+        for (const [key, match] of checks) {
+          if (match) {
+            picker.querySelector(`[data-preset="${key}"]`)?.setAttribute("data-active", "true");
+            break;
+          }
+        }
+      }
+
+      picker.querySelectorAll("[data-preset]").forEach((btn) => {
+        btn.addEventListener("click", (event) => {
+          event.stopPropagation();
+          applyPreset(btn.dataset.preset);
+        });
+      });
+
+      // ── Footer buttons ─────────────────────────────────────────
+      function closePicker() {
+        dropdown.dataset.open = "false";
+        trigger.setAttribute("aria-expanded", "false");
+        trigger.focus();
+      }
+
+      picker.querySelector("[data-datepicker-cancel]").addEventListener("click", (event) => {
+        event.stopPropagation();
+        pendingStart = rangeStart ? new Date(rangeStart) : null;
+        pendingEnd = rangeEnd ? new Date(rangeEnd) : null;
+        closePicker();
+      });
+
+      picker.querySelector("[data-datepicker-apply]").addEventListener("click", (event) => {
+        event.stopPropagation();
+        rangeStart = pendingStart ? new Date(pendingStart) : null;
+        rangeEnd = pendingEnd ? new Date(pendingEnd) : null;
+        triggerLabel.textContent = formatTrigger(rangeStart, rangeEnd);
+        closePicker();
+      });
+
+      // ── Sync pending with current when dropdown opens/closes via the
+      //    framework (Esc, click-outside, re-click trigger) ──────
+      const observer = new MutationObserver(() => {
+        if (dropdown.dataset.open === "true") {
+          // Opened — sync pending FROM committed values
+          pendingStart = rangeStart ? new Date(rangeStart) : null;
+          pendingEnd = rangeEnd ? new Date(rangeEnd) : null;
+          hoverDate = null;
+          if (pendingStart) {
+            viewMonth = new Date(pendingStart.getFullYear(), pendingStart.getMonth(), 1);
+          }
+          render();
+        }
+      });
+      observer.observe(dropdown, { attributes: true, attributeFilter: ["data-open"] });
+
+      // Initial render + trigger label
+      render();
+      triggerLabel.textContent = formatTrigger(rangeStart, rangeEnd);
     })();
   </script>
 </body>

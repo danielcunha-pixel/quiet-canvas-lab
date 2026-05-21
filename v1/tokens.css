@@ -1,0 +1,76 @@
+/* Hallmark · component: dashboard-tokens · genre: modern-minimal · theme: Quiet
+ * Portable token block — reference these by name, never inline raw values.
+ */
+
+:root {
+  /* —— Paper / Ink / Neutrals (warm-oat anchor, hue 70) ——————————————— */
+  --color-paper:        oklch(98.4% 0.004 70);   /* page background */
+  --color-paper-2:      oklch(99.4% 0.003 70);   /* card surface (slightly above paper) */
+  --color-paper-3:      oklch(96.5% 0.005 70);   /* hover wash */
+  --color-paper-sunk:   oklch(94.2% 0.006 70);   /* table head, code, tabs */
+  --color-rule:         oklch(91.5% 0.005 70);   /* hairlines */
+  --color-rule-strong:  oklch(86.5% 0.006 70);   /* visible borders, dividers */
+  --color-neutral:      oklch(58% 0.006 70);     /* secondary text, meta */
+  --color-muted:        oklch(45% 0.006 70);     /* tertiary, captions */
+  --color-ink:          oklch(20% 0.010 70);     /* primary text */
+  --color-ink-strong:   oklch(13% 0.012 70);     /* extreme contrast (rarely) */
+
+  /* —— Accent (restrained indigo-ink, hue 256) ———————————————————————— */
+  --color-accent:       oklch(48% 0.13 256);
+  --color-accent-hover: oklch(42% 0.13 256);
+  --color-accent-soft:  oklch(95% 0.025 256);    /* used only for focus tint */
+  --color-focus:        oklch(58% 0.18 256);     /* focus ring */
+
+  /* —— Status (monochrome ramp, label-driven not colour-driven) ————— */
+  --color-status-dot-active:   oklch(58% 0.13 145); /* green dot, micro use */
+  --color-status-dot-idle:     oklch(70% 0.005 70);
+  --color-status-dot-warn:     oklch(72% 0.13 60);
+
+  /* —— Type ————————————————————————————————————————————————————————— */
+  --font-display: "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-body:    "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono:    "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-wordmark:"Fraunces", ui-serif, Georgia, serif;
+
+  /* Scale — ratio 1.25 (major third), base 14px for dashboard density */
+  --text-2xs:   0.6875rem;   /* 11px — micro labels, table foot, status */
+  --text-xs:    0.75rem;     /* 12px — labels, kicker, breadcrumb */
+  --text-sm:    0.8125rem;   /* 13px — table cell, meta */
+  --text-base:  0.875rem;    /* 14px — body, nav */
+  --text-md:    1rem;        /* 16px — emphasised body */
+  --text-lg:    1.25rem;     /* 20px — section titles */
+  --text-xl:    1.625rem;    /* 26px — page title */
+  --text-stat:  2.5rem;      /* 40px — metric numbers */
+
+  /* —— Spacing — 4pt scale ——————————————————————————————————————————— */
+  --space-1:    0.25rem;     /* 4 */
+  --space-2:    0.5rem;      /* 8 */
+  --space-3:    0.75rem;     /* 12 */
+  --space-4:    1rem;        /* 16 */
+  --space-5:    1.25rem;     /* 20 */
+  --space-6:    1.5rem;      /* 24 */
+  --space-8:    2rem;        /* 32 */
+  --space-10:   2.5rem;      /* 40 */
+  --space-12:   3rem;        /* 48 */
+
+  /* —— Radius / Rules ————————————————————————————————————————————————— */
+  --radius-xs:  4px;
+  --radius-sm:  6px;
+  --radius-md:  10px;
+  --radius-lg:  14px;
+  --radius-pill: 999px;
+  --rule-hair:  1px;
+
+  /* —— Motion ————————————————————————————————————————————————————————— */
+  --ease-out:    cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-in:     cubic-bezier(0.55, 0.06, 0.68, 0.19);
+  --ease-in-out: cubic-bezier(0.65, 0.05, 0.36, 1);
+  --dur-fast:    120ms;
+  --dur-base:    180ms;
+  --dur-slow:    260ms;
+
+  /* —— Layout ————————————————————————————————————————————————————————— */
+  --sidebar-w:    240px;
+  --topbar-h:     56px;
+  --content-max:  1440px;
+}

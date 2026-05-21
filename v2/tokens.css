@@ -1,0 +1,184 @@
+/* Hallmark · v2 dashboard tokens · genre: modern-minimal · theme: custom
+ * vibe: "tech · robotic · enterprise · industrial"
+ * paper band: light (~98%) · display style: mono · accent hue: cool steel-blue + lime signal
+ * source: user-supplied palette (10-stop ramps × 7 roles)
+ *
+ * Reference values by name only — no inline OKLCH in page CSS.
+ */
+
+:root {
+  /* ════════════════════════════════════════════════════════════════════
+   * NEUTRAL — cool-tinted grey ramp (left col 1 of supplied palette)
+   * ════════════════════════════════════════════════════════════════════ */
+  --color-neutral-50:   oklch(98.4% 0.003 240);
+  --color-neutral-100:  oklch(95.5% 0.005 240);
+  --color-neutral-200:  oklch(90.0% 0.007 235);
+  --color-neutral-300:  oklch(82.5% 0.010 230);
+  --color-neutral-400:  oklch(70.0% 0.012 225);
+  --color-neutral-500:  oklch(56.0% 0.014 220);
+  --color-neutral-600:  oklch(44.0% 0.014 220);
+  --color-neutral-700:  oklch(32.0% 0.014 220);
+  --color-neutral-800:  oklch(22.0% 0.015 220);
+  --color-neutral-900:  oklch(14.0% 0.014 220);
+  --color-neutral-950:  oklch(9.0%  0.012 220);
+
+  /* ════════════════════════════════════════════════════════════════════
+   * PRIMARY — steel-blue / teal ramp (left col 2)
+   * ════════════════════════════════════════════════════════════════════ */
+  --color-primary-50:   oklch(97.0% 0.012 220);
+  --color-primary-100:  oklch(92.0% 0.028 218);
+  --color-primary-200:  oklch(85.0% 0.052 215);
+  --color-primary-300:  oklch(76.0% 0.075 213);
+  --color-primary-400:  oklch(66.0% 0.092 212);
+  --color-primary-500:  oklch(56.0% 0.098 212);
+  --color-primary-600:  oklch(46.0% 0.092 212);
+  --color-primary-700:  oklch(36.0% 0.080 212);
+  --color-primary-800:  oklch(28.0% 0.063 212);
+  --color-primary-900:  oklch(20.0% 0.045 212);
+
+  /* ════════════════════════════════════════════════════════════════════
+   * TERTIARY — electric lime / yellow-green ramp (left col 3)
+   * The "robotic signal" colour. Used ≤ 1% of viewport per color.md rule.
+   * ════════════════════════════════════════════════════════════════════ */
+  --color-tertiary-50:  oklch(98.5% 0.030 115);
+  --color-tertiary-100: oklch(96.0% 0.075 115);
+  --color-tertiary-200: oklch(93.0% 0.130 115);
+  --color-tertiary-300: oklch(91.0% 0.170 115);
+  --color-tertiary-400: oklch(88.0% 0.190 115);   /* peak — signal colour */
+  --color-tertiary-500: oklch(78.0% 0.175 115);
+  --color-tertiary-600: oklch(65.0% 0.140 115);
+  --color-tertiary-700: oklch(52.0% 0.115 112);
+  --color-tertiary-800: oklch(40.0% 0.090 110);
+  --color-tertiary-900: oklch(28.0% 0.065 105);
+
+  /* ════════════════════════════════════════════════════════════════════
+   * STATUS — error / success / info / warning (right side of palette)
+   * ════════════════════════════════════════════════════════════════════ */
+  --color-error-50:     oklch(97.0% 0.014 25);
+  --color-error-100:    oklch(93.0% 0.038 25);
+  --color-error-300:    oklch(82.0% 0.090 25);
+  --color-error-500:    oklch(66.0% 0.170 25);
+  --color-error-600:    oklch(58.0% 0.180 25);
+  --color-error-700:    oklch(48.0% 0.165 25);
+  --color-error-900:    oklch(25.0% 0.085 25);
+
+  --color-success-50:   oklch(97.0% 0.020 145);
+  --color-success-100:  oklch(93.0% 0.055 145);
+  --color-success-300:  oklch(85.0% 0.135 145);
+  --color-success-500:  oklch(70.0% 0.180 145);
+  --color-success-600:  oklch(62.0% 0.170 145);
+  --color-success-700:  oklch(50.0% 0.155 145);
+  --color-success-900:  oklch(28.0% 0.080 145);
+
+  --color-info-50:      oklch(97.0% 0.014 240);
+  --color-info-100:     oklch(93.0% 0.038 240);
+  --color-info-300:     oklch(82.0% 0.092 240);
+  --color-info-500:     oklch(63.0% 0.155 240);
+  --color-info-600:     oklch(54.0% 0.165 240);
+  --color-info-700:     oklch(45.0% 0.155 240);
+  --color-info-900:     oklch(28.0% 0.085 240);
+
+  --color-warning-50:   oklch(97.0% 0.018 55);
+  --color-warning-100:  oklch(93.0% 0.050 55);
+  --color-warning-300:  oklch(85.0% 0.115 55);
+  --color-warning-500:  oklch(72.0% 0.150 55);
+  --color-warning-600:  oklch(64.0% 0.150 55);
+  --color-warning-700:  oklch(54.0% 0.140 55);
+  --color-warning-900:  oklch(32.0% 0.085 55);
+
+  /* ════════════════════════════════════════════════════════════════════
+   * SEMANTIC ROLES — never reference raw ramp tokens in component CSS,
+   * always reference these.
+   * ════════════════════════════════════════════════════════════════════ */
+  --color-paper:           var(--color-neutral-50);    /* page canvas */
+  --color-paper-2:         #ffffff;                    /* card surface (true white earns its keep against tinted canvas) */
+  --color-paper-3:         var(--color-neutral-100);   /* hover wash */
+  --color-paper-sunk:      var(--color-neutral-100);   /* table heads, code */
+  --color-paper-dark:      var(--color-neutral-900);   /* sidebar, dark panels */
+  --color-paper-dark-2:    var(--color-neutral-800);   /* elevated dark surface */
+
+  --color-ink:             var(--color-neutral-900);
+  --color-ink-2:           var(--color-neutral-700);   /* secondary text */
+  --color-ink-3:           var(--color-neutral-500);   /* tertiary / meta */
+  --color-ink-mute:        var(--color-neutral-400);   /* placeholder, labels */
+  --color-ink-inv:         var(--color-neutral-50);    /* text on dark */
+  --color-ink-inv-2:       var(--color-neutral-300);   /* secondary on dark */
+
+  --color-rule:            var(--color-neutral-200);
+  --color-rule-strong:     var(--color-neutral-300);
+  --color-rule-dark:       var(--color-neutral-700);   /* on dark surfaces */
+
+  --color-accent:          var(--color-primary-600);   /* primary CTA, links */
+  --color-accent-hover:    var(--color-primary-700);
+  --color-accent-soft:     var(--color-primary-50);
+  --color-focus:           var(--color-primary-500);
+
+  --color-signal:          var(--color-tertiary-400);  /* live-data signal — ≤ 1% viewport */
+  --color-signal-glow:     oklch(88% 0.19 115 / 0.35);
+
+  --color-status-active:   var(--color-success-500);
+  --color-status-idle:     var(--color-neutral-400);
+  --color-status-warn:     var(--color-warning-500);
+  --color-status-error:    var(--color-error-500);
+
+  /* ════════════════════════════════════════════════════════════════════
+   * TYPE — Technical tier: JetBrains Mono (display) + Geist (body)
+   * Two families total. Wordmark uses JetBrains Mono uppercase tracked.
+   * ════════════════════════════════════════════════════════════════════ */
+  --font-mono:     "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-body:     "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display:  var(--font-mono);
+  --font-wordmark: var(--font-mono);
+
+  /* Scale — ratio 1.25 (major third), base 14px for dashboard density */
+  --text-2xs:    0.6875rem;   /* 11px */
+  --text-xs:     0.75rem;     /* 12px */
+  --text-sm:     0.8125rem;   /* 13px */
+  --text-base:   0.875rem;    /* 14px */
+  --text-md:     1rem;        /* 16px */
+  --text-lg:     1.1875rem;   /* 19px */
+  --text-xl:     1.5rem;      /* 24px */
+  --text-2xl:    1.875rem;    /* 30px */
+  --text-3xl:    2.5rem;      /* 40px */
+  --text-stat:   clamp(3rem, 6vw + 0.5rem, 5.25rem);   /* hero metric */
+  --text-stat-s: clamp(2rem, 3vw + 0.5rem, 2.75rem);   /* supporting stats */
+
+  /* ════════════════════════════════════════════════════════════════════
+   * SPACING — 4pt scale
+   * ════════════════════════════════════════════════════════════════════ */
+  --space-1:    0.25rem;
+  --space-2:    0.5rem;
+  --space-3:    0.75rem;
+  --space-4:    1rem;
+  --space-5:    1.25rem;
+  --space-6:    1.5rem;
+  --space-8:    2rem;
+  --space-10:   2.5rem;
+  --space-12:   3rem;
+  --space-16:   4rem;
+
+  /* ════════════════════════════════════════════════════════════════════
+   * RADIUS / RULES / MOTION
+   * ════════════════════════════════════════════════════════════════════ */
+  --radius-xs:    3px;
+  --radius-sm:    5px;
+  --radius-md:    8px;
+  --radius-lg:    12px;
+  --radius-pill:  999px;
+  --rule-hair:    1px;
+
+  --ease-out:     cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-in:      cubic-bezier(0.55, 0.06, 0.68, 0.19);
+  --ease-in-out:  cubic-bezier(0.65, 0.05, 0.36, 1);
+  --dur-fast:     120ms;
+  --dur-base:     180ms;
+  --dur-slow:     260ms;
+  --dur-pulse:    1800ms;
+
+  /* ════════════════════════════════════════════════════════════════════
+   * LAYOUT
+   * ════════════════════════════════════════════════════════════════════ */
+  --sidebar-w:    248px;
+  --topbar-h:     54px;
+  --content-max:  1480px;
+}

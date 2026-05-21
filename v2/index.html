@@ -1,0 +1,1717 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ardia · Control Plane</title>
+  <meta name="description" content="Fleet operations console for robotized service delivery across hospitality, facilities, and industrial operations." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;450;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="./tokens.css" />
+  <style>
+    /* Hallmark · macrostructure: Stat-Led · genre: modern-minimal · theme: custom
+     * vibe: "tech · robotic · enterprise · industrial"
+     * type: JetBrains Mono (display + numerics + wordmark) + Geist (body)
+     * paper: oklch(98.4% 0.003 240) · accent: oklch(46% 0.092 212) · signal: oklch(88% 0.19 115)
+     * enrichment: none (typography only) · motion: row-lift · status-pulse
+     * pre-emit critique: P5 H5 E5 S5 R5 V5
+     * diversification vs hallmark-test/v1: macrostructure (Stat-Led / Bento Grid),
+     *   display style (mono / sans), accent hue (steel-blue + lime / warm-oat mono) — 3 axes differ
+     */
+
+    /* ═══════════════ Reset ═══════════════ */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    html { overflow-x: clip; -webkit-text-size-adjust: 100%; }
+    body { overflow-x: clip; }
+    img, svg { display: block; max-width: 100%; }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    a { color: inherit; text-decoration: none; }
+    button { background: none; border: 0; padding: 0; cursor: pointer; }
+    ul, ol { margin: 0; padding: 0; list-style: none; }
+    table { border-collapse: collapse; width: 100%; }
+
+    /* ═══════════════ Base ═══════════════ */
+    html {
+      font-family: var(--font-body);
+      font-size: 16px;
+      color: var(--color-ink);
+      background: var(--color-paper);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    body {
+      font-size: var(--text-base);
+      line-height: 1.5;
+      letter-spacing: -0.005em;
+      min-height: 100dvh;
+    }
+
+    .num, [data-num] { font-variant-numeric: tabular-nums; font-family: var(--font-mono); }
+    .mono { font-family: var(--font-mono); }
+    .upper { text-transform: uppercase; letter-spacing: 0.08em; }
+
+    ::selection { background: var(--color-accent-soft); color: var(--color-ink); }
+    :focus { outline: none; }
+    :focus-visible {
+      outline: 2px solid var(--color-focus);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
+    /* ═══════════════ App shell ═══════════════ */
+    .app {
+      display: grid;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      grid-template-rows: var(--topbar-h) 1fr;
+      min-height: 100dvh;
+    }
+
+    /* ═══════════════ Sidebar (dark — industrial control surface) ═══════════════ */
+    .sidebar {
+      grid-column: 1;
+      grid-row: 1 / span 2;
+      position: sticky;
+      top: 0;
+      align-self: start;
+      height: 100dvh;
+      background: var(--color-paper-dark);
+      color: var(--color-ink-inv);
+      border-right: var(--rule-hair) solid var(--color-rule-dark);
+      display: flex;
+      flex-direction: column;
+      padding: var(--space-5) 0 var(--space-3);
+    }
+
+    .sidebar__brand {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: 0 var(--space-5) var(--space-6);
+    }
+    .sidebar__brand-mark {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      background: var(--color-signal);
+      color: var(--color-neutral-900);
+      display: grid; place-items: center;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0;
+      box-shadow: 0 0 0 1px oklch(0% 0 0 / 0.1), 0 0 16px var(--color-signal-glow);
+    }
+    .sidebar__brand-name {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 0.18em;
+      color: var(--color-ink-inv);
+      text-transform: uppercase;
+    }
+    .sidebar__brand-build {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--color-ink-inv-2);
+      letter-spacing: 0.04em;
+      padding: 2px 6px;
+      border: var(--rule-hair) solid var(--color-rule-dark);
+      border-radius: 3px;
+    }
+
+    .sidebar__group { padding: 0 var(--space-3); margin-top: var(--space-2); }
+    .sidebar__group + .sidebar__group { margin-top: var(--space-6); }
+    .sidebar__group-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--color-ink-mute);
+      padding: 0 var(--space-3) var(--space-3);
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: 8px var(--space-3);
+      border-radius: var(--radius-sm);
+      color: var(--color-ink-inv-2);
+      font-size: var(--text-base);
+      font-weight: 450;
+      transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+    }
+    .nav-item:hover { background: var(--color-paper-dark-2); color: var(--color-ink-inv); }
+    .nav-item[aria-current="page"] {
+      background: var(--color-paper-dark-2);
+      color: var(--color-ink-inv);
+      box-shadow: inset 2px 0 0 var(--color-signal);
+    }
+    .nav-item[aria-current="page"] .nav-item__icon { color: var(--color-signal); }
+    .nav-item__icon {
+      width: 16px; height: 16px;
+      color: var(--color-ink-mute);
+      flex-shrink: 0;
+    }
+    .nav-item:not([aria-current="page"]):hover .nav-item__icon { color: var(--color-ink-inv); }
+
+    .sidebar__footer {
+      margin-top: auto;
+      padding: var(--space-3) var(--space-3) 0;
+    }
+    .view-as {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      width: 100%;
+      padding: var(--space-3);
+      border-radius: var(--radius-md);
+      background: var(--color-paper-dark-2);
+      border: var(--rule-hair) solid var(--color-rule-dark);
+      transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+    }
+    .view-as:hover {
+      background: var(--color-neutral-700);
+      border-color: var(--color-neutral-600);
+    }
+    .view-as__avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: var(--color-signal);
+      color: var(--color-neutral-900);
+      display: grid; place-items: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .view-as__meta { flex: 1; min-width: 0; line-height: 1.2; text-align: left; }
+    .view-as__kicker {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--color-ink-mute);
+    }
+    .view-as__name {
+      display: block;
+      font-size: var(--text-sm);
+      color: var(--color-ink-inv);
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .view-as__chev { color: var(--color-ink-mute); flex-shrink: 0; }
+
+    /* ═══════════════ Topbar ═══════════════ */
+    .topbar {
+      grid-column: 2;
+      grid-row: 1;
+      height: var(--topbar-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--space-8);
+      border-bottom: var(--rule-hair) solid var(--color-rule);
+      background: var(--color-paper);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .topbar__left { display: flex; align-items: center; gap: var(--space-4); }
+    .topbar__collapse {
+      width: 32px; height: 32px;
+      display: grid; place-items: center;
+      border-radius: var(--radius-sm);
+      color: var(--color-ink-3);
+      transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+    }
+    .topbar__collapse:hover { background: var(--color-paper-3); color: var(--color-ink); }
+
+    .topbar__crumbs {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-family: var(--font-mono);
+      font-size: var(--text-2xs);
+      color: var(--color-ink-3);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .topbar__crumbs .sep { color: var(--color-rule-strong); }
+    .topbar__crumbs .leaf { color: var(--color-ink); font-weight: 500; }
+
+    .topbar__right { display: flex; align-items: center; gap: var(--space-3); }
+
+    .live-clock {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: var(--text-2xs);
+      color: var(--color-ink-3);
+      letter-spacing: 0.04em;
+    }
+    .live-clock__dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--color-status-active);
+      box-shadow: 0 0 0 3px oklch(70% 0.18 145 / 0.18);
+      animation: pulse var(--dur-pulse) ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0.45; }
+    }
+
+    .role-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      height: 30px;
+      padding: 0 var(--space-3) 0 11px;
+      background: var(--color-paper-2);
+      border: var(--rule-hair) solid var(--color-rule-strong);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: var(--text-2xs);
+      color: var(--color-ink);
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: background var(--dur-fast) var(--ease-out);
+    }
+    .role-pill:hover { background: var(--color-paper-3); }
+    .role-pill__dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--color-signal);
+    }
+
+    .icon-btn {
+      width: 32px; height: 32px;
+      display: grid; place-items: center;
+      border-radius: var(--radius-sm);
+      color: var(--color-ink-3);
+      transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+      position: relative;
+    }
+    .icon-btn:hover { background: var(--color-paper-3); color: var(--color-ink); }
+    .icon-btn__badge {
+      position: absolute;
+      top: 5px; right: 5px;
+      width: 7px; height: 7px;
+      background: var(--color-error-500);
+      border-radius: 50%;
+      box-shadow: 0 0 0 2px var(--color-paper);
+    }
+    .avatar-btn {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--color-paper-dark);
+      color: var(--color-ink-inv);
+      display: grid; place-items: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    /* ═══════════════ Main ═══════════════ */
+    .main {
+      grid-column: 2;
+      grid-row: 2;
+      padding: var(--space-8) var(--space-8) var(--space-12);
+      max-width: var(--content-max);
+      min-width: 0;
+    }
+
+    /* ═══════════════ Stat-Led HERO ═══════════════ */
+    .stat-hero {
+      padding-bottom: var(--space-8);
+      border-bottom: var(--rule-hair) solid var(--color-rule);
+    }
+    .stat-hero__kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-family: var(--font-mono);
+      font-size: var(--text-2xs);
+      color: var(--color-ink-3);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: var(--space-4);
+    }
+    .stat-hero__kicker-dot {
+      width: 5px; height: 5px;
+      background: var(--color-signal);
+      border-radius: 1px;
+    }
+    .stat-hero__title {
+      font-family: var(--font-body);
+      font-size: var(--text-xl);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--color-ink);
+      margin: 0 0 var(--space-2);
+      line-height: 1.15;
+    }
+    .stat-hero__lede {
+      font-size: var(--text-md);
+      color: var(--color-ink-2);
+      max-width: 64ch;
+      margin: 0 0 var(--space-8);
+      line-height: 1.55;
+    }
+
+    .stat-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      border-top: var(--rule-hair) solid var(--color-rule);
+      border-bottom: var(--rule-hair) solid var(--color-rule);
+    }
+    .stat-strip__cell {
+      padding: var(--space-6) var(--space-6);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      position: relative;
+    }
+    .stat-strip__cell + .stat-strip__cell { border-left: var(--rule-hair) solid var(--color-rule); }
+
+    .stat-strip__label {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--color-ink-3);
+      font-weight: 500;
+    }
+    .stat-strip__value {
+      font-family: var(--font-mono);
+      font-size: var(--text-stat);
+      line-height: 0.95;
+      font-weight: 500;
+      color: var(--color-ink);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.04em;
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+    .stat-strip__unit {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--color-ink-3);
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .stat-strip__qualifier {
+      font-size: var(--text-sm);
+      color: var(--color-ink-2);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+    .delta-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.04em;
+      font-weight: 500;
+      padding: 3px 7px;
+      border-radius: 3px;
+      background: var(--color-paper-sunk);
+      color: var(--color-ink);
+    }
+    .delta-chip--pos { background: var(--color-success-100); color: var(--color-success-700); }
+    .delta-chip--neg { background: var(--color-error-100); color: var(--color-error-700); }
+    .delta-chip--info { background: var(--color-info-100); color: var(--color-info-700); }
+
+    .stat-strip__bar {
+      display: flex;
+      gap: 2px;
+      height: 4px;
+      margin-top: 4px;
+    }
+    .stat-strip__bar span {
+      flex: 1;
+      background: var(--color-rule-strong);
+      border-radius: 1px;
+    }
+    .stat-strip__bar span[data-on="true"] { background: var(--color-ink); }
+    .stat-strip__bar span[data-on="signal"] { background: var(--color-signal); }
+
+    /* ═══════════════ Telemetry banner ═══════════════ */
+    .telemetry {
+      margin-top: var(--space-8);
+      padding: var(--space-4) var(--space-5);
+      border-radius: var(--radius-md);
+      background: var(--color-paper-dark);
+      color: var(--color-ink-inv);
+      display: flex;
+      align-items: center;
+      gap: var(--space-6);
+      flex-wrap: wrap;
+    }
+    .telemetry__cell {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--color-ink-inv-2);
+    }
+    .telemetry__cell .num { color: var(--color-ink-inv); font-weight: 500; text-transform: none; letter-spacing: 0; }
+    .telemetry__cell--lead {
+      color: var(--color-signal);
+      font-weight: 600;
+    }
+    .telemetry__sep {
+      width: 1px;
+      height: 14px;
+      background: var(--color-rule-dark);
+    }
+    .telemetry__action {
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: var(--text-2xs);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-ink-inv);
+      padding: 6px 10px;
+      border: var(--rule-hair) solid var(--color-rule-dark);
+      border-radius: var(--radius-sm);
+      transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+    }
+    .telemetry__action:hover { background: var(--color-paper-dark-2); border-color: var(--color-neutral-500); }
+
+    /* ═══════════════ Section header ═══════════════ */
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--space-4);
+      margin: var(--space-12) 0 var(--space-4);
+    }
+    .section-head__title {
+      font-size: var(--text-lg);
+      font-weight: 600;
+      letter-spacing: -0.018em;
+      color: var(--color-ink);
+      margin: 0;
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-3);
+    }
+    .section-head__no {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      letter-spacing: 0.06em;
+      color: var(--color-ink-3);
+      font-weight: 500;
+    }
+    .section-head__sub {
+      font-size: var(--text-sm);
+      color: var(--color-ink-3);
+      margin: 4px 0 0;
+    }
+    .section-head__actions { display: flex; gap: var(--space-2); align-items: center; }
+
+    /* ═══════════════ Buttons ═══════════════ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      height: 32px;
+      padding: 0 var(--space-4);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      letter-spacing: -0.003em;
+      cursor: pointer;
+      transition:
+        background var(--dur-fast) var(--ease-out),
+        border-color var(--dur-fast) var(--ease-out),
+        color var(--dur-fast) var(--ease-out),
+        transform var(--dur-fast) var(--ease-out),
+        box-shadow var(--dur-fast) var(--ease-out);
+      white-space: nowrap;
+    }
+    .btn:active { transform: translateY(0.5px); }
+    .btn[disabled] { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .btn--primary {
+      background: var(--color-accent);
+      color: var(--color-ink-inv);
+      border: var(--rule-hair) solid var(--color-accent);
+      box-shadow: 0 1px 0 oklch(0% 0 0 / 0.06), inset 0 1px 0 oklch(100% 0 0 / 0.1);
+    }
+    .btn--primary:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); }
+
+    .btn--outline {
+      background: var(--color-paper-2);
+      color: var(--color-ink);
+      border: var(--rule-hair) solid var(--color-rule-strong);
+    }
+    .btn--outline:hover { background: var(--color-paper-3); border-color: var(--color-ink-3); }
+
+    .btn--ghost {
+      background: transparent;
+      color: var(--color-ink-3);
+      padding: 0 var(--space-3);
+    }
+    .btn--ghost:hover { background: var(--color-paper-3); color: var(--color-ink); }
+
+    .btn--sm { height: 28px; font-size: var(--text-sm); padding: 0 var(--space-3); }
+    .btn--icon { width: 32px; padding: 0; }
+    .btn--icon.btn--sm { width: 28px; }
+    .btn--mono {
+      font-family: var(--font-mono);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: var(--text-2xs);
+      font-weight: 500;
+    }
+
+    /* ═══════════════ Operations layout ═══════════════ */
+    .ops-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: var(--space-6);
+    }
+    .panel {
+      background: var(--color-paper-2);
+      border: var(--rule-hair) solid var(--color-rule);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .panel__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+      padding: var(--space-4) var(--space-5);
+      border-bottom: var(--rule-hair) solid var(--color-rule);
+      background: var(--color-paper-2);
+    }
+    .panel__title {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-ink);
+      font-weight: 600;
+      margin: 0;
+    }
+    .panel__title-dot {
+      width: 6px; height: 6px;
+      background: var(--color-signal);
+      border-radius: 1px;
+    }
+    .panel__count {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.04em;
+      color: var(--color-ink-3);
+      padding: 2px 6px;
+      background: var(--color-paper-sunk);
+      border-radius: 3px;
+      margin-left: 4px;
+    }
+    .panel__filters { display: flex; gap: var(--space-2); }
+    .filter {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      height: 26px;
+      padding: 0 var(--space-3);
+      border: var(--rule-hair) solid var(--color-rule-strong);
+      border-radius: var(--radius-sm);
+      background: var(--color-paper-2);
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--color-ink);
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: background var(--dur-fast) var(--ease-out);
+    }
+    .filter:hover { background: var(--color-paper-3); }
+    .filter__chev { color: var(--color-ink-3); }
+
+    /* ═══════════════ Fleet table (the centrepiece) ═══════════════ */
+    .table {
+      width: 100%;
+      font-size: var(--text-sm);
+    }
+    .table thead th {
+      text-align: left;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-ink-3);
+      background: var(--color-paper-sunk);
+      padding: var(--space-3) var(--space-5);
+      border-bottom: var(--rule-hair) solid var(--color-rule);
+    }
+    .table thead th[data-align="right"] { text-align: right; }
+    .table tbody td {
+      padding: var(--space-3) var(--space-5);
+      border-bottom: var(--rule-hair) solid var(--color-rule);
+      color: var(--color-ink);
+      vertical-align: middle;
+    }
+    .table tbody tr:last-child td { border-bottom: 0; }
+    .table tbody tr { transition: background var(--dur-fast) var(--ease-out); }
+    .table tbody tr:hover { background: var(--color-paper-3); }
+    .table td[data-align="right"] { text-align: right; }
+
+    .robot-cell { display: flex; align-items: center; gap: var(--space-3); }
+    .robot-cell__avatar {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      background: var(--color-paper-dark);
+      color: var(--color-signal);
+      display: grid; place-items: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0;
+    }
+    .robot-cell__name { font-weight: 500; }
+    .robot-cell__sub {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--color-ink-3);
+      letter-spacing: 0.04em;
+      margin-top: 2px;
+    }
+
+    .status-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .status-tag__dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--color-status-active);
+      box-shadow: 0 0 0 3px oklch(70% 0.18 145 / 0.18);
+    }
+    .status-tag--active .status-tag__dot {
+      animation: pulse var(--dur-pulse) ease-in-out infinite;
+    }
+    .status-tag--idle .status-tag__dot {
+      background: var(--color-status-idle);
+      box-shadow: 0 0 0 3px oklch(70% 0 0 / 0.15);
+    }
+    .status-tag--warn .status-tag__dot {
+      background: var(--color-status-warn);
+      box-shadow: 0 0 0 3px oklch(72% 0.15 55 / 0.22);
+    }
+    .status-tag--error .status-tag__dot {
+      background: var(--color-status-error);
+      box-shadow: 0 0 0 3px oklch(66% 0.17 25 / 0.22);
+    }
+
+    .battery {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--color-ink);
+      letter-spacing: 0.02em;
+    }
+    .battery__bar {
+      width: 28px;
+      height: 8px;
+      border: var(--rule-hair) solid var(--color-rule-strong);
+      border-radius: 2px;
+      position: relative;
+      padding: 1px;
+      overflow: hidden;
+    }
+    .battery__bar::after {
+      content: "";
+      position: absolute;
+      top: 1px; bottom: 1px; left: 1px;
+      width: calc(var(--level, 1) * (100% - 2px));
+      background: var(--color-ink);
+      border-radius: 1px;
+    }
+    .battery--warn .battery__bar::after { background: var(--color-status-warn); }
+    .battery--low .battery__bar::after { background: var(--color-status-error); }
+
+    /* ═══════════════ Onboarding panel (right side) ═══════════════ */
+    .ob-list { display: flex; flex-direction: column; }
+    .ob-list__row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-3);
+      padding: var(--space-4) var(--space-5);
+      border-bottom: var(--rule-hair) solid var(--color-rule);
+      transition: background var(--dur-fast) var(--ease-out);
+    }
+    .ob-list__row:last-child { border-bottom: 0; }
+    .ob-list__row:hover { background: var(--color-paper-3); }
+
+    .ob-list__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+    }
+    .ob-list__entity { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
+    .ob-list__avatar {
+      width: 32px; height: 32px;
+      border-radius: 7px;
+      background: var(--color-paper-dark);
+      color: var(--color-ink-inv);
+      display: grid; place-items: center;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0;
+    }
+    .ob-list__name {
+      font-size: var(--text-base);
+      font-weight: 500;
+      color: var(--color-ink);
+      letter-spacing: -0.005em;
+    }
+    .ob-list__meta {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--color-ink-3);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+    .ob-list__progress {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .ob-list__bar {
+      display: flex;
+      gap: 3px;
+      width: 100%;
+    }
+    .ob-list__seg {
+      flex: 1;
+      height: 6px;
+      border-radius: 1px;
+      background: var(--color-rule-strong);
+    }
+    .ob-list__seg[data-done="true"] { background: var(--color-ink); }
+    .ob-list__row--complete .ob-list__seg[data-done="true"] { background: var(--color-signal); }
+    .ob-list__label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--color-ink-3);
+      letter-spacing: 0.04em;
+    }
+    .ob-list__pct { color: var(--color-ink); font-weight: 500; }
+
+    .panel__foot {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--space-3);
+      padding: var(--space-4) var(--space-5);
+      border-top: var(--rule-hair) solid var(--color-rule);
+      background: var(--color-paper-2);
+    }
+
+    /* ═══════════════ Cross-tenant readout ═══════════════ */
+    .crosstenant {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+    }
+    .crosstenant__cell {
+      padding: var(--space-5);
+      border-right: var(--rule-hair) solid var(--color-rule);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      min-width: 0;
+    }
+    .crosstenant__cell:last-child { border-right: 0; }
+    .crosstenant__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .crosstenant__name {
+      font-size: var(--text-base);
+      font-weight: 500;
+      color: var(--color-ink);
+      letter-spacing: -0.005em;
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    .crosstenant__mark {
+      width: 24px; height: 24px;
+      border-radius: 5px;
+      background: var(--color-paper-dark);
+      color: var(--color-ink-inv);
+      display: grid; place-items: center;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .crosstenant__metrics {
+      display: flex;
+      gap: var(--space-4);
+      align-items: baseline;
+    }
+    .crosstenant__metric {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .crosstenant__metric-value {
+      font-family: var(--font-mono);
+      font-size: var(--text-stat-s);
+      font-weight: 500;
+      color: var(--color-ink);
+      line-height: 0.95;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
+    }
+    .crosstenant__metric-value--zero { color: var(--color-ink-mute); }
+    .crosstenant__metric-label {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-ink-3);
+    }
+    .crosstenant__line {
+      font-family: var(--font-mono);
+      font-size: var(--text-2xs);
+      color: var(--color-ink-3);
+      letter-spacing: 0.04em;
+    }
+
+    /* ═══════════════ Quick actions strip ═══════════════ */
+    .actions-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      border: var(--rule-hair) solid var(--color-rule);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: var(--color-paper-2);
+    }
+    .actions-strip__cell {
+      padding: var(--space-5);
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      border-right: var(--rule-hair) solid var(--color-rule);
+      transition: background var(--dur-fast) var(--ease-out);
+      cursor: pointer;
+    }
+    .actions-strip__cell:last-child { border-right: 0; }
+    .actions-strip__cell:hover { background: var(--color-paper-3); }
+    .actions-strip__cell:hover .actions-strip__arrow { color: var(--color-ink); transform: translateX(2px); }
+    .actions-strip__icon {
+      width: 36px; height: 36px;
+      display: grid; place-items: center;
+      border-radius: var(--radius-sm);
+      background: var(--color-paper-dark);
+      color: var(--color-ink-inv);
+      flex-shrink: 0;
+    }
+    .actions-strip__text { flex: 1; min-width: 0; }
+    .actions-strip__title {
+      font-size: var(--text-base);
+      font-weight: 500;
+      letter-spacing: -0.005em;
+      color: var(--color-ink);
+    }
+    .actions-strip__sub {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--color-ink-3);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+    .actions-strip__arrow {
+      color: var(--color-ink-mute);
+      transition: transform var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+      flex-shrink: 0;
+    }
+
+    /* ═══════════════ Footer colophon ═══════════════ */
+    .colophon {
+      margin-top: var(--space-12);
+      padding-top: var(--space-5);
+      border-top: var(--rule-hair) solid var(--color-rule);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-4);
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--color-ink-3);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      flex-wrap: wrap;
+    }
+
+    /* ═══════════════ Accessibility helpers ═══════════════ */
+    .sr-only {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+    }
+
+    /* ═══════════════ Reduced motion ═══════════════ */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition-duration: 1ms !important;
+        animation-duration: 1ms !important;
+      }
+    }
+
+    /* ═══════════════ Responsive ═══════════════ */
+    @media (max-width: 1180px) {
+      .ops-grid { grid-template-columns: 1fr; }
+      .actions-strip { grid-template-columns: repeat(2, 1fr); }
+      .actions-strip__cell:nth-child(2) { border-right: 0; }
+      .actions-strip__cell:nth-child(1), .actions-strip__cell:nth-child(2) {
+        border-bottom: var(--rule-hair) solid var(--color-rule);
+      }
+      .crosstenant { grid-template-columns: 1fr; }
+      .crosstenant__cell { border-right: 0; border-bottom: var(--rule-hair) solid var(--color-rule); }
+      .crosstenant__cell:last-child { border-bottom: 0; }
+    }
+    @media (max-width: 880px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .topbar, .main { grid-column: 1; }
+      .main { padding: var(--space-5); }
+      .stat-strip { grid-template-columns: 1fr; }
+      .stat-strip__cell + .stat-strip__cell { border-left: 0; border-top: var(--rule-hair) solid var(--color-rule); }
+      .actions-strip { grid-template-columns: 1fr; }
+      .actions-strip__cell { border-right: 0; border-bottom: var(--rule-hair) solid var(--color-rule); }
+      .actions-strip__cell:last-child { border-bottom: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- ═════════════════ Sidebar ═════════════════ -->
+    <aside class="sidebar" aria-label="Primary navigation">
+      <div class="sidebar__brand">
+        <span class="sidebar__brand-mark" aria-hidden="true">A</span>
+        <span class="sidebar__brand-name">ARDIA</span>
+        <span class="sidebar__brand-build" aria-label="Build version">v0.4</span>
+      </div>
+
+      <nav class="sidebar__group" aria-label="Operations">
+        <div class="sidebar__group-label">Operations</div>
+        <ul>
+          <li>
+            <a class="nav-item" href="#" aria-current="page">
+              <svg class="nav-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+              Control plane
+            </a>
+          </li>
+          <li>
+            <a class="nav-item" href="#">
+              <svg class="nav-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="11" rx="2"/><path d="M8 9V5a4 4 0 0 1 8 0v4"/><circle cx="9" cy="14.5" r="1"/><circle cx="15" cy="14.5" r="1"/></svg>
+              Fleet
+            </a>
+          </li>
+          <li>
+            <a class="nav-item" href="#">
+              <svg class="nav-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><path d="m9 8 3 7"/><path d="m15 8-3 7"/></svg>
+              Workflows
+            </a>
+          </li>
+          <li>
+            <a class="nav-item" href="#">
+              <svg class="nav-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h6"/><path d="M16 12h6"/><path d="M9 7v10l3-2 3 2V7"/></svg>
+              Telemetry
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <nav class="sidebar__group" aria-label="Tenancy">
+        <div class="sidebar__group-label">Tenancy</div>
+        <ul>
+          <li>
+            <a class="nav-item" href="#">
+              <svg class="nav-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21V12h6v9"/></svg>
+              Holdings
+            </a>
+          </li>
+          <li>
+            <a class="nav-item" href="#">
+              <svg class="nav-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              Tenants
+            </a>
+          </li>
+          <li>
+            <a class="nav-item" href="#">
+              <svg class="nav-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6Z"/></svg>
+              Product lines
+            </a>
+          </li>
+          <li>
+            <a class="nav-item" href="#">
+              <svg class="nav-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>
+              Billing
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <nav class="sidebar__group" aria-label="Administration">
+        <div class="sidebar__group-label">Administration</div>
+        <ul>
+          <li>
+            <a class="nav-item" href="#">
+              <svg class="nav-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Users &amp; roles
+            </a>
+          </li>
+          <li>
+            <a class="nav-item" href="#">
+              <svg class="nav-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-4-8-12V5l8-3 8 3v5c0 8-8 12-8 12Z"/><path d="m9 12 2 2 4-4"/></svg>
+              Safety &amp; guardrails
+            </a>
+          </li>
+          <li>
+            <a class="nav-item" href="#">
+              <svg class="nav-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h7v7H4z"/><path d="M13 4h7v7h-7z"/><path d="M4 13h7v7H4z"/><path d="M13 13h7v7h-7z"/></svg>
+              Task library
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="sidebar__footer">
+        <button class="view-as" type="button" aria-label="View as Ardia Super Admin">
+          <span class="view-as__avatar" aria-hidden="true">SA</span>
+          <span class="view-as__meta">
+            <span class="view-as__kicker">VIEW AS</span>
+            <span class="view-as__name">Ardia Super Admin</span>
+          </span>
+          <svg class="view-as__chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m7 9 5-5 5 5"/><path d="m7 15 5 5 5-5"/></svg>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ═════════════════ Topbar ═════════════════ -->
+    <header class="topbar">
+      <div class="topbar__left">
+        <button class="topbar__collapse" aria-label="Collapse sidebar" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+        </button>
+        <nav class="topbar__crumbs" aria-label="Breadcrumb">
+          <span>Operations</span>
+          <span class="sep" aria-hidden="true">/</span>
+          <span class="leaf">Control plane</span>
+        </nav>
+      </div>
+      <div class="topbar__right">
+        <div class="live-clock" aria-live="polite">
+          <span class="live-clock__dot" aria-hidden="true"></span>
+          LIVE · LISBON 14:32 UTC+0
+        </div>
+        <button class="role-pill" type="button">
+          <span class="role-pill__dot" aria-hidden="true"></span>
+          Super admin
+        </button>
+        <button class="icon-btn" type="button" aria-label="Notifications">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          <span class="icon-btn__badge" aria-hidden="true"></span>
+        </button>
+        <button class="avatar-btn" type="button" aria-label="User menu">DC</button>
+      </div>
+    </header>
+
+    <!-- ═════════════════ Main ═════════════════ -->
+    <main class="main">
+      <!-- ─── Stat-Led HERO ─── -->
+      <header class="stat-hero">
+        <div class="stat-hero__kicker">
+          <span class="stat-hero__kicker-dot" aria-hidden="true"></span>
+          PLATFORM · CONTROL PLANE
+        </div>
+        <h1 class="stat-hero__title">Cross-tenant operations</h1>
+        <p class="stat-hero__lede">
+          Governance, fleet telemetry, and onboarding queue for every holding running on Ardia. Three holdings live, three tenants in production, five robots in service across two countries.
+        </p>
+
+        <section class="stat-strip" aria-label="Platform metrics">
+          <div class="stat-strip__cell">
+            <div class="stat-strip__label">Holdings</div>
+            <div class="stat-strip__value" data-num>03<span class="stat-strip__unit">/ groups</span></div>
+            <div class="stat-strip__qualifier">
+              <span>2 in production · 1 onboarding</span>
+              <span class="delta-chip delta-chip--pos">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="m6 14 6-6 6 6"/></svg>
+                +1 Q
+              </span>
+            </div>
+            <div class="stat-strip__bar" aria-hidden="true">
+              <span data-on="true"></span><span data-on="true"></span><span data-on="true"></span><span></span><span></span><span></span>
+            </div>
+          </div>
+
+          <div class="stat-strip__cell">
+            <div class="stat-strip__label">Tenants</div>
+            <div class="stat-strip__value" data-num>03<span class="stat-strip__unit">/ units</span></div>
+            <div class="stat-strip__qualifier">
+              <span>Across PT · ES</span>
+              <span class="delta-chip delta-chip--info">2 hotels · 1 laundry</span>
+            </div>
+            <div class="stat-strip__bar" aria-hidden="true">
+              <span data-on="true"></span><span data-on="true"></span><span data-on="true"></span><span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+
+          <div class="stat-strip__cell">
+            <div class="stat-strip__label">Robots in service</div>
+            <div class="stat-strip__value" data-num>05<span class="stat-strip__unit">/ Unitree</span></div>
+            <div class="stat-strip__qualifier">
+              <span>4 active · 1 idle</span>
+              <span class="delta-chip delta-chip--pos">99.97% uptime</span>
+            </div>
+            <div class="stat-strip__bar" aria-hidden="true">
+              <span data-on="signal"></span><span data-on="signal"></span><span data-on="signal"></span><span data-on="signal"></span><span data-on="true"></span><span></span><span></span><span></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ─── Live telemetry banner ─── -->
+        <section class="telemetry" aria-label="Live telemetry">
+          <span class="telemetry__cell telemetry__cell--lead">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            FLEET SYNC · 2 MIN AGO
+          </span>
+          <span class="telemetry__sep" aria-hidden="true"></span>
+          <span class="telemetry__cell">Tasks today · <span class="num">147</span></span>
+          <span class="telemetry__sep" aria-hidden="true"></span>
+          <span class="telemetry__cell">Avg duration · <span class="num">04:21</span></span>
+          <span class="telemetry__sep" aria-hidden="true"></span>
+          <span class="telemetry__cell">Incidents 24h · <span class="num">0</span></span>
+          <span class="telemetry__sep" aria-hidden="true"></span>
+          <span class="telemetry__cell">Battery avg · <span class="num">78%</span></span>
+          <a class="telemetry__action" href="#">
+            Open telemetry
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+        </section>
+      </header>
+
+      <!-- ─── Section: Fleet status + Onboarding queue ─── -->
+      <header class="section-head">
+        <div>
+          <h2 class="section-head__title">
+            <span class="section-head__no" data-num>01</span>
+            Fleet status &amp; onboarding queue
+          </h2>
+          <p class="section-head__sub">Live robot telemetry on the left, holdings being configured by the specialist team on the right.</p>
+        </div>
+      </header>
+
+      <div class="ops-grid">
+        <!-- ─── Fleet status (centrepiece table) ─── -->
+        <section class="panel" aria-labelledby="fleet-title">
+          <header class="panel__head">
+            <h3 class="panel__title" id="fleet-title">
+              <span class="panel__title-dot" aria-hidden="true"></span>
+              Fleet status
+              <span class="panel__count">5 ROBOTS</span>
+            </h3>
+            <div class="panel__filters">
+              <button class="filter" type="button">
+                ALL TENANTS
+                <svg class="filter__chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <button class="filter" type="button">
+                LIVE
+                <svg class="filter__chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+            </div>
+          </header>
+
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Robot</th>
+                <th>Tenant</th>
+                <th>Battery</th>
+                <th data-align="right">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <span class="robot-cell">
+                    <span class="robot-cell__avatar" aria-hidden="true">SE</span>
+                    <span>
+                      <div class="robot-cell__name">Semilha</div>
+                      <div class="robot-cell__sub">GO2 · S/N GO2-A2839</div>
+                    </span>
+                  </span>
+                </td>
+                <td>Pestana Lido</td>
+                <td>
+                  <span class="battery" style="--level: 0.87;">
+                    <span class="battery__bar" aria-hidden="true"></span>
+                    <span class="num">87%</span>
+                  </span>
+                </td>
+                <td data-align="right">
+                  <span class="status-tag status-tag--active"><span class="status-tag__dot" aria-hidden="true"></span>Active</span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="robot-cell">
+                    <span class="robot-cell__avatar" aria-hidden="true">SI</span>
+                    <span>
+                      <div class="robot-cell__name">Sissi</div>
+                      <div class="robot-cell__sub">GO2 · S/N GO2-A2841</div>
+                    </span>
+                  </span>
+                </td>
+                <td>Pestana Lido</td>
+                <td>
+                  <span class="battery" style="--level: 0.62;">
+                    <span class="battery__bar" aria-hidden="true"></span>
+                    <span class="num">62%</span>
+                  </span>
+                </td>
+                <td data-align="right">
+                  <span class="status-tag status-tag--active"><span class="status-tag__dot" aria-hidden="true"></span>Active</span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="robot-cell">
+                    <span class="robot-cell__avatar" aria-hidden="true">PO</span>
+                    <span>
+                      <div class="robot-cell__name">Portinho</div>
+                      <div class="robot-cell__sub">GO2 · S/N GO2-B1102</div>
+                    </span>
+                  </span>
+                </td>
+                <td>Pestana Madrid</td>
+                <td>
+                  <span class="battery" style="--level: 0.91;">
+                    <span class="battery__bar" aria-hidden="true"></span>
+                    <span class="num">91%</span>
+                  </span>
+                </td>
+                <td data-align="right">
+                  <span class="status-tag status-tag--active"><span class="status-tag__dot" aria-hidden="true"></span>Active</span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="robot-cell">
+                    <span class="robot-cell__avatar" aria-hidden="true">MA</span>
+                    <span>
+                      <div class="robot-cell__name">Marola</div>
+                      <div class="robot-cell__sub">B2-W · S/N B2W-D3456</div>
+                    </span>
+                  </span>
+                </td>
+                <td>Serlima Lavandaria Norte</td>
+                <td>
+                  <span class="battery battery--warn" style="--level: 0.34;">
+                    <span class="battery__bar" aria-hidden="true"></span>
+                    <span class="num">34%</span>
+                  </span>
+                </td>
+                <td data-align="right">
+                  <span class="status-tag status-tag--idle"><span class="status-tag__dot" aria-hidden="true"></span>Charging</span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="robot-cell">
+                    <span class="robot-cell__avatar" aria-hidden="true">ON</span>
+                    <span>
+                      <div class="robot-cell__name">Onda</div>
+                      <div class="robot-cell__sub">H1 · S/N H1-E7890</div>
+                    </span>
+                  </span>
+                </td>
+                <td>Serlima Lavandaria Norte</td>
+                <td>
+                  <span class="battery" style="--level: 0.78;">
+                    <span class="battery__bar" aria-hidden="true"></span>
+                    <span class="num">78%</span>
+                  </span>
+                </td>
+                <td data-align="right">
+                  <span class="status-tag status-tag--active"><span class="status-tag__dot" aria-hidden="true"></span>Active</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- ─── Onboarding queue ─── -->
+        <section class="panel" aria-labelledby="ob-title">
+          <header class="panel__head">
+            <h3 class="panel__title" id="ob-title">
+              <span class="panel__title-dot" aria-hidden="true"></span>
+              Onboarding queue
+              <span class="panel__count">2 ACTIVE</span>
+            </h3>
+            <div class="panel__filters">
+              <button class="filter" type="button">
+                ACTIVE
+                <svg class="filter__chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+            </div>
+          </header>
+
+          <div class="ob-list">
+            <div class="ob-list__row">
+              <div class="ob-list__head">
+                <div class="ob-list__entity">
+                  <span class="ob-list__avatar" aria-hidden="true">GP</span>
+                  <div>
+                    <div class="ob-list__name">Grupo Pestana</div>
+                    <div class="ob-list__meta">HOSPITALITY · MADEIRA, PT</div>
+                  </div>
+                </div>
+                <button class="btn btn--outline btn--sm btn--mono" type="button">
+                  CONTINUE
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </button>
+              </div>
+              <div class="ob-list__progress">
+                <div class="ob-list__bar" aria-hidden="true">
+                  <span class="ob-list__seg" data-done="true"></span>
+                  <span class="ob-list__seg" data-done="true"></span>
+                  <span class="ob-list__seg" data-done="true"></span>
+                  <span class="ob-list__seg" data-done="true"></span>
+                  <span class="ob-list__seg" data-done="true"></span>
+                  <span class="ob-list__seg" data-done="true"></span>
+                  <span class="ob-list__seg" data-done="true"></span>
+                  <span class="ob-list__seg"></span>
+                </div>
+                <div class="ob-list__label">
+                  <span>7 / 8 sections complete</span>
+                  <span class="ob-list__pct" data-num>88%</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="ob-list__row">
+              <div class="ob-list__head">
+                <div class="ob-list__entity">
+                  <span class="ob-list__avatar" aria-hidden="true">GV</span>
+                  <div>
+                    <div class="ob-list__name">Grupo Vila Galé</div>
+                    <div class="ob-list__meta">HOSPITALITY · LISBOA, PT</div>
+                  </div>
+                </div>
+                <button class="btn btn--outline btn--sm btn--mono" type="button">
+                  START
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </button>
+              </div>
+              <div class="ob-list__progress">
+                <div class="ob-list__bar" aria-hidden="true">
+                  <span class="ob-list__seg"></span>
+                  <span class="ob-list__seg"></span>
+                  <span class="ob-list__seg"></span>
+                  <span class="ob-list__seg"></span>
+                  <span class="ob-list__seg"></span>
+                  <span class="ob-list__seg"></span>
+                  <span class="ob-list__seg"></span>
+                  <span class="ob-list__seg"></span>
+                </div>
+                <div class="ob-list__label">
+                  <span>0 / 8 sections — not started</span>
+                  <span class="ob-list__pct" data-num>0%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <footer class="panel__foot">
+            <button class="btn btn--primary" type="button">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+              Onboard new holding
+            </button>
+          </footer>
+        </section>
+      </div>
+
+      <!-- ─── Section: Cross-tenant readout ─── -->
+      <header class="section-head">
+        <div>
+          <h2 class="section-head__title">
+            <span class="section-head__no" data-num>02</span>
+            Holdings &amp; tenants in production
+          </h2>
+          <p class="section-head__sub">Hardware allocation across every group running on Ardia, by deployment country.</p>
+        </div>
+        <a class="btn btn--ghost btn--sm btn--mono" href="#">
+          OPEN HOLDINGS
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
+      </header>
+
+      <section class="panel">
+        <div class="crosstenant">
+          <div class="crosstenant__cell">
+            <div class="crosstenant__head">
+              <span class="crosstenant__name">
+                <span class="crosstenant__mark" aria-hidden="true">GP</span>
+                Grupo Pestana
+              </span>
+              <span class="status-tag status-tag--active"><span class="status-tag__dot" aria-hidden="true"></span>Live</span>
+            </div>
+            <div class="crosstenant__metrics">
+              <div class="crosstenant__metric">
+                <span class="crosstenant__metric-value" data-num>02</span>
+                <span class="crosstenant__metric-label">Tenants</span>
+              </div>
+              <div class="crosstenant__metric">
+                <span class="crosstenant__metric-value" data-num>03</span>
+                <span class="crosstenant__metric-label">Robots</span>
+              </div>
+              <div class="crosstenant__metric">
+                <span class="crosstenant__metric-value" data-num>14</span>
+                <span class="crosstenant__metric-label">Workflows</span>
+              </div>
+            </div>
+            <div class="crosstenant__line">Pestana Lido · Pestana Madrid</div>
+          </div>
+
+          <div class="crosstenant__cell">
+            <div class="crosstenant__head">
+              <span class="crosstenant__name">
+                <span class="crosstenant__mark" aria-hidden="true">SG</span>
+                Serlima Group
+              </span>
+              <span class="status-tag status-tag--active"><span class="status-tag__dot" aria-hidden="true"></span>Live</span>
+            </div>
+            <div class="crosstenant__metrics">
+              <div class="crosstenant__metric">
+                <span class="crosstenant__metric-value" data-num>01</span>
+                <span class="crosstenant__metric-label">Tenant</span>
+              </div>
+              <div class="crosstenant__metric">
+                <span class="crosstenant__metric-value" data-num>02</span>
+                <span class="crosstenant__metric-label">Robots</span>
+              </div>
+              <div class="crosstenant__metric">
+                <span class="crosstenant__metric-value" data-num>06</span>
+                <span class="crosstenant__metric-label">Workflows</span>
+              </div>
+            </div>
+            <div class="crosstenant__line">Serlima Lavandaria Norte</div>
+          </div>
+
+          <div class="crosstenant__cell">
+            <div class="crosstenant__head">
+              <span class="crosstenant__name">
+                <span class="crosstenant__mark" aria-hidden="true">GV</span>
+                Grupo Vila Galé
+              </span>
+              <span class="status-tag status-tag--idle"><span class="status-tag__dot" aria-hidden="true"></span>Setup</span>
+            </div>
+            <div class="crosstenant__metrics">
+              <div class="crosstenant__metric">
+                <span class="crosstenant__metric-value crosstenant__metric-value--zero" data-num>00</span>
+                <span class="crosstenant__metric-label">Tenants</span>
+              </div>
+              <div class="crosstenant__metric">
+                <span class="crosstenant__metric-value crosstenant__metric-value--zero" data-num>00</span>
+                <span class="crosstenant__metric-label">Robots</span>
+              </div>
+              <div class="crosstenant__metric">
+                <span class="crosstenant__metric-value crosstenant__metric-value--zero" data-num>00</span>
+                <span class="crosstenant__metric-label">Workflows</span>
+              </div>
+            </div>
+            <div class="crosstenant__line">Awaiting tenant intake</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── Section: Quick actions strip (demoted) ─── -->
+      <header class="section-head">
+        <div>
+          <h2 class="section-head__title">
+            <span class="section-head__no" data-num>03</span>
+            Quick actions
+          </h2>
+        </div>
+      </header>
+
+      <div class="actions-strip">
+        <div class="actions-strip__cell" role="link" tabindex="0">
+          <span class="actions-strip__icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M12 12v9"/><path d="M8 16h8"/></svg>
+          </span>
+          <div class="actions-strip__text">
+            <div class="actions-strip__title">Create holding</div>
+            <div class="actions-strip__sub">NEW GROUP</div>
+          </div>
+          <svg class="actions-strip__arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </div>
+
+        <div class="actions-strip__cell" role="link" tabindex="0">
+          <span class="actions-strip__icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          </span>
+          <div class="actions-strip__text">
+            <div class="actions-strip__title">Create tenant</div>
+            <div class="actions-strip__sub">NEW UNIT</div>
+          </div>
+          <svg class="actions-strip__arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </div>
+
+        <div class="actions-strip__cell" role="link" tabindex="0">
+          <span class="actions-strip__icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11h-6"/><path d="M19 8v6"/></svg>
+          </span>
+          <div class="actions-strip__text">
+            <div class="actions-strip__title">Invite users</div>
+            <div class="actions-strip__sub">GRANT ACCESS</div>
+          </div>
+          <svg class="actions-strip__arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </div>
+
+        <div class="actions-strip__cell" role="link" tabindex="0">
+          <span class="actions-strip__icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="11" rx="2"/><path d="M8 9V5a4 4 0 0 1 8 0v4"/><circle cx="9" cy="14.5" r="1"/><circle cx="15" cy="14.5" r="1"/></svg>
+          </span>
+          <div class="actions-strip__text">
+            <div class="actions-strip__title">Register robot</div>
+            <div class="actions-strip__sub">ENROL HARDWARE</div>
+          </div>
+          <svg class="actions-strip__arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </div>
+      </div>
+
+      <footer class="colophon">
+        <span>ARDIA · CONTROL PLANE · v0.4-wireframe-test</span>
+        <span>HALLMARK · STAT-LED · CUSTOM</span>
+      </footer>
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       Sandbox affordance — NOT part of the Ardia UI.
+       Dashed border + mono font + "SANDBOX" kicker signal that this is
+       test-harness chrome, not product chrome.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <a href="../" class="sandbox-back" aria-label="Back to versions index">
+    <span class="sandbox-back__kicker">SANDBOX</span>
+    <span class="sandbox-back__sep" aria-hidden="true"></span>
+    <span class="sandbox-back__body">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>
+      </svg>
+      Back to index
+    </span>
+  </a>
+  <style>
+    .sandbox-back {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 9999;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px 8px 10px;
+      background: rgba(255, 255, 255, 0.82);
+      -webkit-backdrop-filter: blur(10px) saturate(140%);
+      backdrop-filter: blur(10px) saturate(140%);
+      border: 1px dashed #8a8a8a;
+      border-radius: 10px;
+      font-family: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+      font-size: 11px;
+      color: #2a2a2a;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+      transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
+    }
+    .sandbox-back:hover {
+      background: rgba(255, 255, 255, 0.96);
+      border-color: #2a2a2a;
+      color: #000;
+      transform: translateY(-1px);
+    }
+    .sandbox-back:active { transform: translateY(0); }
+    .sandbox-back__kicker {
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #8a8a8a;
+      font-size: 10px;
+    }
+    .sandbox-back__sep {
+      width: 1px;
+      height: 11px;
+      background: #c8c8c8;
+    }
+    .sandbox-back__body {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .sandbox-back { transition: none; }
+      .sandbox-back:hover { transform: none; }
+    }
+    @media print { .sandbox-back { display: none; } }
+  </style>
+</body>
+</html>

@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ardia · Hallmark dashboard versions</title>
+  <meta name="description" content="Index of dashboard versions generated with the Hallmark design skill." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Geist:wght@400;450;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    /* Index for the hallmark-test versions. Utility page — restrained voice. */
+
+    :root {
+      /* Cool-neutral paper, matches v2 palette tokens */
+      --paper:        oklch(98.4% 0.003 240);
+      --paper-2:      #ffffff;
+      --paper-3:      oklch(95.5% 0.005 240);
+      --paper-sunk:   oklch(95.5% 0.005 240);
+      --paper-dark:   oklch(14.0% 0.014 220);
+      --paper-dark-2: oklch(22.0% 0.015 220);
+
+      --ink:          oklch(14.0% 0.014 220);
+      --ink-2:        oklch(32.0% 0.014 220);
+      --ink-3:        oklch(56.0% 0.014 220);
+      --ink-mute:     oklch(70.0% 0.012 225);
+      --ink-inv:      oklch(98.4% 0.003 240);
+      --ink-inv-2:    oklch(82.5% 0.010 230);
+
+      --rule:         oklch(90.0% 0.007 235);
+      --rule-strong:  oklch(82.5% 0.010 230);
+
+      --accent:       oklch(46.0% 0.092 212);
+      --accent-hover: oklch(36.0% 0.080 212);
+      --signal:       oklch(88.0% 0.190 115);
+
+      --font-body: "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+      --radius-sm: 5px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+
+      --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+      --dur-fast: 120ms;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    html { overflow-x: clip; }
+    body {
+      font-family: var(--font-body);
+      font-size: 14px;
+      line-height: 1.55;
+      letter-spacing: -0.005em;
+      color: var(--ink);
+      background: var(--paper);
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; cursor: pointer; }
+    table { border-collapse: collapse; width: 100%; }
+
+    :focus { outline: none; }
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
+    .num, .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+    /* ─── Layout ─── */
+    .shell {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 64px 32px 96px;
+    }
+
+    /* ─── Brand strip ─── */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 56px;
+    }
+    .brand__mark {
+      width: 32px; height: 32px;
+      border-radius: 7px;
+      background: var(--paper-dark);
+      color: var(--signal);
+      display: grid; place-items: center;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 14px;
+      box-shadow: 0 0 0 1px oklch(0% 0 0 / 0.08);
+    }
+    .brand__name {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+    .brand__sep {
+      width: 1px; height: 14px;
+      background: var(--rule-strong);
+    }
+    .brand__suffix {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+
+    /* ─── Header ─── */
+    .header {
+      margin-bottom: 48px;
+    }
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin-bottom: 16px;
+    }
+    .kicker__dot {
+      width: 5px; height: 5px;
+      background: var(--signal);
+      border-radius: 1px;
+    }
+    h1 {
+      font-size: 30px;
+      font-weight: 600;
+      letter-spacing: -0.022em;
+      margin: 0 0 12px;
+      line-height: 1.15;
+      color: var(--ink);
+    }
+    .lede {
+      font-size: 15px;
+      color: var(--ink-2);
+      max-width: 60ch;
+      margin: 0;
+      line-height: 1.55;
+    }
+
+    /* ─── Table ─── */
+    .table-wrap {
+      border: 1px solid var(--rule);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: var(--paper-2);
+    }
+    .table {
+      font-size: 14px;
+    }
+    .table thead th {
+      text-align: left;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      background: var(--paper-sunk);
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .table thead th[data-align="right"] { text-align: right; }
+    .table tbody td {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--rule);
+      color: var(--ink);
+      vertical-align: middle;
+    }
+    .table tbody tr:last-child td { border-bottom: 0; }
+    .table tbody tr { transition: background var(--dur-fast) var(--ease-out); }
+    .table tbody tr:hover { background: var(--paper-3); }
+
+    /* Name cell */
+    .v-cell { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .v-tag {
+      width: 38px; height: 38px;
+      border-radius: 8px;
+      background: var(--paper-dark);
+      color: var(--ink-inv);
+      display: grid; place-items: center;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0;
+      flex-shrink: 0;
+    }
+    .v-tag--signal { background: var(--signal); color: var(--paper-dark); }
+    .v-meta { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .v-name {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+    }
+    .v-desc {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--ink-3);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* Date / time cells */
+    .table td[data-col="date"], .table td[data-col="time"] {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--ink-2);
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+    .table th[data-col="link"], .table td[data-col="link"] { text-align: right; }
+
+    /* Link button */
+    .open-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 32px;
+      padding: 0 14px;
+      border-radius: var(--radius-sm);
+      background: var(--paper-2);
+      border: 1px solid var(--rule-strong);
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
+      letter-spacing: -0.003em;
+      transition:
+        background var(--dur-fast) var(--ease-out),
+        border-color var(--dur-fast) var(--ease-out),
+        transform var(--dur-fast) var(--ease-out);
+    }
+    .open-link:hover {
+      background: var(--paper-dark);
+      border-color: var(--paper-dark);
+      color: var(--ink-inv);
+    }
+    .open-link:hover .open-link__arrow { transform: translateX(2px); }
+    .open-link:active { transform: translateY(0.5px); }
+    .open-link__arrow {
+      transition: transform var(--dur-fast) var(--ease-out);
+    }
+
+    /* ─── Footnote ─── */
+    .foot {
+      margin-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--ink-3);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      flex-wrap: wrap;
+    }
+    .foot__right { color: var(--ink-mute); }
+
+    /* ─── Reduced motion ─── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 1ms !important; }
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 720px) {
+      .shell { padding: 40px 20px 64px; }
+      h1 { font-size: 24px; }
+      .table thead th, .table tbody td { padding: 14px; }
+      .table td[data-col="date"] { display: none; }
+      .table th[data-col="date"] { display: none; }
+      .open-link span { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <!-- Brand strip -->
+    <header class="brand">
+      <span class="brand__mark" aria-hidden="true">A</span>
+      <span class="brand__name">Ardia</span>
+      <span class="brand__sep" aria-hidden="true"></span>
+      <span class="brand__suffix">Hallmark · Sandbox</span>
+    </header>
+
+    <!-- Page header -->
+    <header class="header">
+      <div class="kicker">
+        <span class="kicker__dot" aria-hidden="true"></span>
+        Wireframe → refined UI
+      </div>
+      <h1>Dashboard versions</h1>
+      <p class="lede">
+        Iterations generated with the Hallmark design skill from the same Ardia Platform Dashboard wireframe. Each version is a complete, standalone build with its own palette, type pairing, and macrostructure — kept side-by-side for comparison.
+      </p>
+    </header>
+
+    <!-- Versions table -->
+    <section class="table-wrap">
+      <table class="table" aria-label="Generated dashboard versions">
+        <thead>
+          <tr>
+            <th>Version</th>
+            <th data-col="date">Date</th>
+            <th data-col="time">Time</th>
+            <th data-col="link" data-align="right">Open</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="v-cell">
+                <span class="v-tag" aria-hidden="true">v1</span>
+                <div class="v-meta">
+                  <span class="v-name">Bento Grid · Quiet</span>
+                  <span class="v-desc">Modern-minimal · warm-oat mono · Geist</span>
+                </div>
+              </div>
+            </td>
+            <td data-col="date">2026-05-21</td>
+            <td data-col="time">10:42</td>
+            <td data-col="link">
+              <a class="open-link" href="./v1/">
+                <span>Open</span>
+                <svg class="open-link__arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12h14"/>
+                  <path d="m12 5 7 7-7 7"/>
+                </svg>
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="v-cell">
+                <span class="v-tag v-tag--signal" aria-hidden="true">v2</span>
+                <div class="v-meta">
+                  <span class="v-name">Stat-Led · custom (tech-industrial)</span>
+                  <span class="v-desc">JetBrains Mono · steel-blue + lime signal · supplied palette</span>
+                </div>
+              </div>
+            </td>
+            <td data-col="date">2026-05-21</td>
+            <td data-col="time">11:02</td>
+            <td data-col="link">
+              <a class="open-link" href="./v2/">
+                <span>Open</span>
+                <svg class="open-link__arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12h14"/>
+                  <path d="m12 5 7 7-7 7"/>
+                </svg>
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="v-cell">
+                <span class="v-tag" aria-hidden="true">v3</span>
+                <div class="v-meta">
+                  <span class="v-name">Bento Grid · studied-DNA (consumer-SaaS)</span>
+                  <span class="v-desc">Plus Jakarta Sans · deep teal + lime brand · pastel category badges</span>
+                </div>
+              </div>
+            </td>
+            <td data-col="date">2026-05-21</td>
+            <td data-col="time">11:37</td>
+            <td data-col="link">
+              <a class="open-link" href="./v3/">
+                <span>Open</span>
+                <svg class="open-link__arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12h14"/>
+                  <path d="m12 5 7 7-7 7"/>
+                </svg>
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer class="foot">
+      <span>3 versions · sandbox build</span>
+      <span class="foot__right">Hallmark v1.0.0 · localhost:4172</span>
+    </footer>
+  </main>
+</body>
+</html>

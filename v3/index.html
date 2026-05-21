@@ -879,6 +879,121 @@
     }
     .cta-banner__stat-value--signal { color: var(--color-signal); }
 
+    /* ═══════════════ Dropdown component ═══════════════ */
+    /* Reusable dropdown. Optional icon slot on the left.
+       Hover-pill is inset from the menu edges via the menu's 6px padding +
+       the items' radius-sm — matches the reference treatment.
+       Trigger gets aria-expanded + aria-haspopup via JS.
+       All colours pulled from the v3 slate-green token set. */
+    .dropdown {
+      position: relative;
+      display: inline-flex;
+    }
+    .dropdown__menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      z-index: 30;
+      min-width: 220px;
+      padding: 6px;
+      background: var(--color-paper-2);
+      border: var(--rule-hair) solid var(--color-rule);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-pop);
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      /* Closed state */
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-4px);
+      transition:
+        opacity var(--dur-fast) var(--ease-out),
+        transform var(--dur-fast) var(--ease-out),
+        visibility 0s linear var(--dur-fast);
+    }
+    .dropdown[data-open="true"] .dropdown__menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      transition:
+        opacity var(--dur-fast) var(--ease-out),
+        transform var(--dur-fast) var(--ease-out),
+        visibility 0s linear 0s;
+    }
+    .dropdown__menu[data-align="left"] { right: auto; left: 0; }
+
+    .dropdown__item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 9px 10px;
+      border: 0;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--color-ink);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      letter-spacing: -0.003em;
+      text-align: left;
+      cursor: pointer;
+      transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+    }
+    .dropdown__item:hover,
+    .dropdown__item:focus-visible {
+      background: var(--color-paper-3);
+      outline: none;
+    }
+    .dropdown__item-icon {
+      width: 18px; height: 18px;
+      color: var(--color-ink-3);
+      flex-shrink: 0;
+      transition: color var(--dur-fast) var(--ease-out);
+    }
+    .dropdown__item:hover .dropdown__item-icon,
+    .dropdown__item:focus-visible .dropdown__item-icon { color: var(--color-ink); }
+    .dropdown__item-label { flex: 1; }
+    .dropdown__item-trail {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.04em;
+      color: var(--color-ink-3);
+    }
+    .dropdown__item[aria-checked="true"] .dropdown__item-check {
+      color: var(--color-accent);
+    }
+    .dropdown__item-check {
+      width: 14px; height: 14px;
+      color: transparent;
+      flex-shrink: 0;
+    }
+    .dropdown__item--danger { color: var(--color-ink); }
+    .dropdown__item--danger:hover,
+    .dropdown__item--danger:focus-visible {
+      background: var(--color-error-50);
+      color: var(--color-error-700);
+    }
+    .dropdown__item--danger:hover .dropdown__item-icon,
+    .dropdown__item--danger:focus-visible .dropdown__item-icon {
+      color: var(--color-error-700);
+    }
+    .dropdown__sep {
+      height: var(--rule-hair);
+      background: var(--color-rule);
+      margin: 4px 6px;
+    }
+
+    /* Chevron on selection-style triggers rotates when open */
+    .dropdown__chev {
+      transition: transform var(--dur-base) var(--ease-out);
+    }
+    .dropdown[data-open="true"] .dropdown__chev { transform: rotate(180deg); }
+
     /* ═══════════════ Reduced motion ═══════════════ */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { transition-duration: 1ms !important; animation-duration: 1ms !important; }
@@ -1081,9 +1196,42 @@
                 <span class="featured__title" id="featured-title">Featured robot</span>
                 <span class="featured__sub">Top performer · today</span>
               </div>
-              <button class="featured__more" type="button" aria-label="More">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
-              </button>
+              <div class="dropdown" data-dropdown>
+                <button class="featured__more" type="button" aria-label="Robot actions" aria-haspopup="menu" aria-expanded="false" data-dropdown-trigger>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                </button>
+                <div class="dropdown__menu" role="menu" aria-label="Robot actions">
+                  <button class="dropdown__item" type="button" role="menuitem">
+                    <svg class="dropdown__item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    <span class="dropdown__item-label">Copy serial</span>
+                  </button>
+                  <button class="dropdown__item" type="button" role="menuitem">
+                    <svg class="dropdown__item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    <span class="dropdown__item-label">Add to favorites</span>
+                  </button>
+                  <button class="dropdown__item" type="button" role="menuitem">
+                    <svg class="dropdown__item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                    <span class="dropdown__item-label">Rename</span>
+                  </button>
+                  <button class="dropdown__item" type="button" role="menuitem">
+                    <svg class="dropdown__item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <span class="dropdown__item-label">Lock controls</span>
+                  </button>
+                  <button class="dropdown__item" type="button" role="menuitem">
+                    <svg class="dropdown__item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18.84 12.25 1.72-1.71h-.02a5.004 5.004 0 0 0-.12-7.07 5.006 5.006 0 0 0-6.95 0l-1.72 1.71"/><path d="m5.17 11.75-1.71 1.71a5.004 5.004 0 0 0 .12 7.07 5.006 5.006 0 0 0 6.95 0l1.71-1.71"/><line x1="8" y1="2" x2="8" y2="5"/><line x1="2" y1="8" x2="5" y2="8"/><line x1="16" y1="19" x2="16" y2="22"/><line x1="19" y1="16" x2="22" y2="16"/></svg>
+                    <span class="dropdown__item-label">Unassign</span>
+                  </button>
+                  <button class="dropdown__item" type="button" role="menuitem">
+                    <svg class="dropdown__item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6Z"/></svg>
+                    <span class="dropdown__item-label">Settings</span>
+                  </button>
+                  <div class="dropdown__sep" role="separator"></div>
+                  <button class="dropdown__item dropdown__item--danger" type="button" role="menuitem">
+                    <svg class="dropdown__item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    <span class="dropdown__item-label">Delete robot</span>
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div class="robot-card">
@@ -1195,10 +1343,44 @@
               <span class="chart-card__title" id="chart-title">Operations volume</span>
               <span class="chart-card__sub">Tasks completed across the fleet</span>
             </div>
-            <button class="chart-card__filter" type="button">
-              Apr 22 – May 21
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-            </button>
+            <div class="dropdown" data-dropdown>
+              <button class="chart-card__filter" type="button" aria-haspopup="menu" aria-expanded="false" data-dropdown-trigger>
+                Apr 22 – May 21
+                <svg class="dropdown__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <div class="dropdown__menu" role="menu" aria-label="Date range">
+                <button class="dropdown__item" type="button" role="menuitemradio" aria-checked="false">
+                  <svg class="dropdown__item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                  <span class="dropdown__item-label">Last 24 hours</span>
+                  <span class="dropdown__item-trail">1D</span>
+                </button>
+                <button class="dropdown__item" type="button" role="menuitemradio" aria-checked="false">
+                  <svg class="dropdown__item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                  <span class="dropdown__item-label">Last 5 days</span>
+                  <span class="dropdown__item-trail">5D</span>
+                </button>
+                <button class="dropdown__item" type="button" role="menuitemradio" aria-checked="false">
+                  <svg class="dropdown__item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                  <span class="dropdown__item-label">Last month</span>
+                  <span class="dropdown__item-trail">1M</span>
+                </button>
+                <button class="dropdown__item" type="button" role="menuitemradio" aria-checked="true">
+                  <svg class="dropdown__item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                  <span class="dropdown__item-label">Last 3 months</span>
+                  <span class="dropdown__item-trail">3M</span>
+                </button>
+                <button class="dropdown__item" type="button" role="menuitemradio" aria-checked="false">
+                  <svg class="dropdown__item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                  <span class="dropdown__item-label">Last 6 months</span>
+                  <span class="dropdown__item-trail">6M</span>
+                </button>
+                <button class="dropdown__item" type="button" role="menuitemradio" aria-checked="false">
+                  <svg class="dropdown__item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                  <span class="dropdown__item-label">Last year</span>
+                  <span class="dropdown__item-trail">1Y</span>
+                </button>
+              </div>
+            </div>
           </div>
 
           <div class="chart">
@@ -1321,10 +1503,30 @@
                 <h3 class="ob__title" id="ob-title">Onboarding queue</h3>
                 <span class="ob__sub">Holdings being configured by the specialist team</span>
               </div>
-              <button class="ob__filter" type="button">
-                This month
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-              </button>
+              <div class="dropdown" data-dropdown>
+                <button class="ob__filter" type="button" aria-haspopup="menu" aria-expanded="false" data-dropdown-trigger>
+                  This month
+                  <svg class="dropdown__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
+                <div class="dropdown__menu" role="menu" aria-label="Time range">
+                  <button class="dropdown__item" type="button" role="menuitemradio" aria-checked="false">
+                    <svg class="dropdown__item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                    <span class="dropdown__item-label">Today</span>
+                  </button>
+                  <button class="dropdown__item" type="button" role="menuitemradio" aria-checked="false">
+                    <svg class="dropdown__item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                    <span class="dropdown__item-label">This week</span>
+                  </button>
+                  <button class="dropdown__item" type="button" role="menuitemradio" aria-checked="true">
+                    <svg class="dropdown__item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                    <span class="dropdown__item-label">This month</span>
+                  </button>
+                  <button class="dropdown__item" type="button" role="menuitemradio" aria-checked="false">
+                    <svg class="dropdown__item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                    <span class="dropdown__item-label">This quarter</span>
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div class="ob__list">
@@ -1520,5 +1722,122 @@
     }
     @media print { .sandbox-back { display: none; } }
   </style>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       Dropdown interactivity — minimal, dependency-free.
+       Handles toggle, click-outside-to-close, Escape, and keyboard nav
+       (Arrow Up/Down, Home/End) within an open menu. Single-select
+       menus also update aria-checked on click.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <script>
+    (function () {
+      const dropdowns = document.querySelectorAll("[data-dropdown]");
+
+      function closeAll(except) {
+        dropdowns.forEach((d) => {
+          if (d === except) return;
+          if (d.dataset.open === "true") {
+            d.dataset.open = "false";
+            d.querySelector("[data-dropdown-trigger]")?.setAttribute("aria-expanded", "false");
+          }
+        });
+      }
+
+      function focusFirstItem(menu) {
+        const first = menu.querySelector('[role="menuitem"], [role="menuitemradio"]');
+        first?.focus();
+      }
+
+      dropdowns.forEach((dropdown) => {
+        const trigger = dropdown.querySelector("[data-dropdown-trigger]");
+        const menu = dropdown.querySelector(".dropdown__menu");
+        if (!trigger || !menu) return;
+
+        trigger.addEventListener("click", (event) => {
+          event.stopPropagation();
+          const isOpen = dropdown.dataset.open === "true";
+          closeAll(dropdown);
+          if (isOpen) {
+            dropdown.dataset.open = "false";
+            trigger.setAttribute("aria-expanded", "false");
+          } else {
+            dropdown.dataset.open = "true";
+            trigger.setAttribute("aria-expanded", "true");
+            requestAnimationFrame(() => focusFirstItem(menu));
+          }
+        });
+
+        // Keyboard navigation within the menu
+        menu.addEventListener("keydown", (event) => {
+          const items = Array.from(menu.querySelectorAll('[role="menuitem"], [role="menuitemradio"]'));
+          const currentIdx = items.indexOf(document.activeElement);
+
+          if (event.key === "ArrowDown") {
+            event.preventDefault();
+            items[(currentIdx + 1 + items.length) % items.length]?.focus();
+          } else if (event.key === "ArrowUp") {
+            event.preventDefault();
+            items[(currentIdx - 1 + items.length) % items.length]?.focus();
+          } else if (event.key === "Home") {
+            event.preventDefault();
+            items[0]?.focus();
+          } else if (event.key === "End") {
+            event.preventDefault();
+            items[items.length - 1]?.focus();
+          } else if (event.key === "Tab") {
+            // Let Tab close the dropdown naturally
+            dropdown.dataset.open = "false";
+            trigger.setAttribute("aria-expanded", "false");
+          }
+        });
+
+        // Selection-style menus (radio) — clicking an item updates aria-checked
+        menu.querySelectorAll('[role="menuitemradio"]').forEach((item) => {
+          item.addEventListener("click", () => {
+            menu.querySelectorAll('[role="menuitemradio"]').forEach((sibling) => {
+              sibling.setAttribute("aria-checked", "false");
+            });
+            item.setAttribute("aria-checked", "true");
+
+            // Mirror the chosen label back into the trigger (skip if it carries no text node)
+            const label = item.querySelector(".dropdown__item-label")?.textContent;
+            const triggerText = Array.from(trigger.childNodes).find(
+              (n) => n.nodeType === Node.TEXT_NODE && n.textContent.trim()
+            );
+            if (label && triggerText) triggerText.textContent = label;
+
+            dropdown.dataset.open = "false";
+            trigger.setAttribute("aria-expanded", "false");
+            trigger.focus();
+          });
+        });
+
+        // Context-menu items (non-radio) — close on click
+        menu.querySelectorAll('[role="menuitem"]').forEach((item) => {
+          item.addEventListener("click", () => {
+            dropdown.dataset.open = "false";
+            trigger.setAttribute("aria-expanded", "false");
+            trigger.focus();
+          });
+        });
+      });
+
+      // Click outside any dropdown closes them
+      document.addEventListener("click", () => closeAll());
+
+      // Escape closes whichever is open and returns focus to its trigger
+      document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape") return;
+        dropdowns.forEach((d) => {
+          if (d.dataset.open === "true") {
+            d.dataset.open = "false";
+            const t = d.querySelector("[data-dropdown-trigger]");
+            t?.setAttribute("aria-expanded", "false");
+            t?.focus();
+          }
+        });
+      });
+    })();
+  </script>
 </body>
 </html>

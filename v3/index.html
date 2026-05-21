@@ -2261,6 +2261,16 @@
           const ts = parseInt(btn.dataset.dateStamp, 10);
           if (!ts) return;
 
+          // Outside-month days never inherit range styling — keeps the
+          // range painted only in the calendar that "owns" the date,
+          // so e.g. Jun 1-7 sitting in May's trailing row stay muted.
+          if (btn.dataset.outside === "true") {
+            delete btn.dataset.rangeStart;
+            delete btn.dataset.rangeEnd;
+            delete btn.dataset.inRange;
+            return;
+          }
+
           const isStart = fromTs !== null && ts === fromTs;
           const isEnd = !singleDay && toTs !== null && ts === toTs;
           const inBetween = fromTs !== null && toTs !== null && ts > fromTs && ts < toTs;

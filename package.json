@@ -1,0 +1,8 @@
+{
+  "name": "quiet-canvas-lab",
+  "private": true,
+  "description": "Hallmark dashboard sandbox · gated behind HTTP Basic Auth via Edge Middleware.",
+  "dependencies": {
+    "@vercel/edge": "^1.3.1"
+  }
+}

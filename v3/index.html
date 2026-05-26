@@ -2208,6 +2208,9 @@
       function formatTrigger(s, e) {
         if (!s && !e) return "All time";
         if (!s || !e) return "Pick a range";
+        if (sameDay(s, e)) {
+          return `${s.getDate()} ${MONTHS_SHORT[s.getMonth()]}, ${s.getFullYear()}`;
+        }
         const sameYear = s.getFullYear() === e.getFullYear();
         if (sameYear) {
           return `${s.getDate()} ${MONTHS_SHORT[s.getMonth()]} – ${e.getDate()} ${MONTHS_SHORT[e.getMonth()]}, ${e.getFullYear()}`;
@@ -2558,6 +2561,13 @@
         let s = new Date(start);
         let e = new Date(end);
         if (s > e) { const tmp = s; s = e; e = tmp; }
+
+        // Single-day range → expand end to end-of-day so we render 24
+        // hourly points instead of one isolated point at midnight.
+        if (sameDay(s, e)) {
+          e = new Date(s);
+          e.setHours(23, 59, 59, 999);
+        }
 
         const daysSpan = Math.max(1, Math.round((e - s) / DAY_MS) + 1);
 

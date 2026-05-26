@@ -1,0 +1,229 @@
+/* Hallmark · v5 dashboard tokens · genre: modern-minimal · theme: studied-DNA
+ * v4 baseline (Be Vietnam Pro + Geist Mono) with the colour palette swapped
+ * for the Figma "Moodboard" / Colors / Frame 52 values — extracted via the
+ * figma-console MCP. All 70 swatches mapped to 7 ten-stop ramps:
+ *   neutral (slate grey, slight teal tint)
+ *   primary (saturated teal)
+ *   tertiary (lime — signal)
+ *   error (red)
+ *   success (green)
+ *   info (blue)
+ *   warning (orange/amber)
+ *
+ * Hex values are reproduced verbatim from Figma. Semantic role tokens
+ * (paper, ink, accent, signal, rule, etc.) keep the same slot mapping as
+ * v4 — only their underlying values shift.
+ */
+
+:root {
+  /* ════════════════════════════════════════════════════════════════════
+   * NEUTRAL — slate grey ramp (Figma col 1, x=24)
+   * ════════════════════════════════════════════════════════════════════ */
+  --color-neutral-0:    #ffffff;
+  --color-neutral-50:   #f7f8f7;
+  --color-neutral-100:  #edefee;
+  --color-neutral-200:  #dbdede;
+  --color-neutral-300:  #b6bdbd;
+  --color-neutral-400:  #929c9b;
+  --color-neutral-500:  #6d7b7a;
+  --color-neutral-600:  #495a59;
+  --color-neutral-700:  #3a4847;
+  --color-neutral-800:  #2c3635;
+  --color-neutral-900:  #0f1212;
+
+  /* ════════════════════════════════════════════════════════════════════
+   * PRIMARY — saturated teal ramp (Figma col 2, x=104)
+   * ════════════════════════════════════════════════════════════════════ */
+  --color-primary-50:   #e9f5f7;
+  --color-primary-100:  #d2ebef;
+  --color-primary-200:  #a5d8de;
+  --color-primary-300:  #79c4ce;
+  --color-primary-400:  #4cb1bd;
+  --color-primary-500:  #1f9dad;
+  --color-primary-600:  #197e8a;
+  --color-primary-700:  #135e68;
+  --color-primary-800:  #0c3f45;
+  --color-primary-900:  #061f23;
+
+  /* ════════════════════════════════════════════════════════════════════
+   * TERTIARY / SIGNAL — lime ramp (Figma col 3, x=184)
+   * Replaces v4's --color-signal-* — same usage pattern, new hue.
+   * ════════════════════════════════════════════════════════════════════ */
+  --color-tertiary-50:  #f9ffee;
+  --color-tertiary-100: #f3ffdd;
+  --color-tertiary-200: #e7ffba;
+  --color-tertiary-300: #dbff98;
+  --color-tertiary-400: #cfff75;
+  --color-tertiary-500: #c3ff53;
+  --color-tertiary-600: #9ccc42;
+  --color-tertiary-700: #759932;
+  --color-tertiary-800: #4e6621;
+  --color-tertiary-900: #273311;
+
+  /* Legacy aliases — keep the same slot names v4 referenced. */
+  --color-signal-100:   var(--color-tertiary-100);
+  --color-signal-300:   var(--color-tertiary-300);
+  --color-signal-400:   var(--color-tertiary-500);   /* visible peak */
+  --color-signal-500:   var(--color-tertiary-600);
+  --color-signal-700:   var(--color-tertiary-700);
+  --color-signal-glow:  rgba(195, 255, 83, 0.32);    /* tertiary-500 @ 32% */
+
+  /* ════════════════════════════════════════════════════════════════════
+   * STATUS RAMPS — full 10-stop ramps from Figma
+   * ════════════════════════════════════════════════════════════════════ */
+  /* Error — red (Figma col 4, x=313) */
+  --color-error-50:     #fff5f4;
+  --color-error-100:    #ffeaea;
+  --color-error-200:    #ffd5d4;
+  --color-error-300:    #ffc0bf;
+  --color-error-400:    #ffaba9;
+  --color-error-500:    #ff9694;
+  --color-error-600:    #e4625f;
+  --color-error-700:    #b73d3b;
+  --color-error-800:    #7a2927;
+  --color-error-900:    #3d1414;
+
+  /* Success — green (Figma col 5, x=393) */
+  --color-success-50:   #f5fff4;
+  --color-success-100:  #ebffea;
+  --color-success-200:  #d7ffd4;
+  --color-success-300:  #c3ffbf;
+  --color-success-400:  #afffa9;
+  --color-success-500:  #9bff94;
+  --color-success-600:  #68e45f;
+  --color-success-700:  #43b73b;
+  --color-success-800:  #2d7a27;
+  --color-success-900:  #163d14;
+
+  /* Info — blue (Figma col 6, x=473) */
+  --color-info-50:      #f4fbff;
+  --color-info-100:     #eaf8ff;
+  --color-info-200:     #d4f0ff;
+  --color-info-300:     #bfe9ff;
+  --color-info-400:     #a9e1ff;
+  --color-info-500:     #94daff;
+  --color-info-600:     #5fb5e4;
+  --color-info-700:     #3b8cb7;
+  --color-info-800:     #275d7a;
+  --color-info-900:     #142f3d;
+
+  /* Warning — orange / amber (Figma col 7, x=553) */
+  --color-warning-50:   #fff9f4;
+  --color-warning-100:  #fff3ea;
+  --color-warning-200:  #ffe7d4;
+  --color-warning-300:  #ffdabf;
+  --color-warning-400:  #ffcea9;
+  --color-warning-500:  #ffc294;
+  --color-warning-600:  #e4985f;
+  --color-warning-700:  #b76f3b;
+  --color-warning-800:  #7a4c27;
+  --color-warning-900:  #3d2614;
+
+  /* ════════════════════════════════════════════════════════════════════
+   * CATEGORY PASTELS — taxonomy badges for operation types
+   * Mapped to Figma ramps. The class names (mint/blush/sky/lavender/amber)
+   * are preserved from v4 to keep HTML intact; "lavender" rebinds to the
+   * teal primary since the Figma palette has no purple.
+   * ════════════════════════════════════════════════════════════════════ */
+  --color-cat-mint-bg:     var(--color-success-200);
+  --color-cat-mint-fg:     var(--color-success-800);
+  --color-cat-blush-bg:    var(--color-error-200);
+  --color-cat-blush-fg:    var(--color-error-800);
+  --color-cat-sky-bg:      var(--color-info-200);
+  --color-cat-sky-fg:      var(--color-info-800);
+  --color-cat-lavender-bg: var(--color-primary-100);
+  --color-cat-lavender-fg: var(--color-primary-800);
+  --color-cat-amber-bg:    var(--color-warning-200);
+  --color-cat-amber-fg:    var(--color-warning-800);
+
+  /* ════════════════════════════════════════════════════════════════════
+   * SEMANTIC ROLES — same slot mapping as v4, values follow Figma palette
+   * The dark surfaces use primary-800 (not 600) so the sidebar stays
+   * visually heavy — Figma's primary-600 is too bright to read as "dark".
+   * ════════════════════════════════════════════════════════════════════ */
+  --color-paper:           var(--color-neutral-50);
+  --color-paper-2:         var(--color-neutral-0);
+  --color-paper-3:         var(--color-neutral-100);
+  --color-paper-sunk:      var(--color-neutral-100);
+  --color-paper-dark:      var(--color-primary-800);  /* sidebar / featured card */
+  --color-paper-dark-2:    var(--color-primary-900);
+
+  --color-ink:             var(--color-neutral-900);
+  --color-ink-2:           var(--color-neutral-700);
+  --color-ink-3:           var(--color-neutral-500);
+  --color-ink-mute:        var(--color-neutral-400);
+  --color-ink-inv:         var(--color-neutral-0);
+  --color-ink-inv-2:       var(--color-neutral-300);
+
+  --color-rule:            var(--color-neutral-200);
+  --color-rule-strong:     var(--color-neutral-300);
+  --color-rule-dark:       var(--color-primary-900);
+
+  --color-accent:          var(--color-primary-600);  /* CTAs, links */
+  --color-accent-hover:    var(--color-primary-700);
+  --color-accent-soft:     var(--color-primary-50);
+
+  --color-signal:          var(--color-signal-400);   /* lime peak */
+  --color-signal-hover:    var(--color-signal-500);
+
+  --color-focus:           var(--color-primary-500);
+
+  /* ════════════════════════════════════════════════════════════════════
+   * SHADOWS — kept identical to v4
+   * ════════════════════════════════════════════════════════════════════ */
+  --shadow-card:    0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.04);
+  --shadow-pop:     0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-signal:  0 8px 24px var(--color-signal-glow);
+
+  /* ════════════════════════════════════════════════════════════════════
+   * TYPE — unchanged from v4 (Be Vietnam Pro + Geist Mono)
+   * ════════════════════════════════════════════════════════════════════ */
+  --font-body:    "Be Vietnam Pro", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Scale */
+  --text-2xs:    0.6875rem;
+  --text-xs:     0.75rem;
+  --text-sm:     0.8125rem;
+  --text-base:   0.875rem;
+  --text-md:     1rem;
+  --text-lg:     1.25rem;
+  --text-xl:     1.5rem;
+  --text-2xl:    1.875rem;
+  --text-3xl:    2.5rem;
+  --text-stat:   2.25rem;
+  --text-hero:   clamp(2.25rem, 4vw + 0.5rem, 3.25rem);
+
+  /* ════════════════════════════════════════════════════════════════════
+   * SPACING / RADIUS / MOTION / LAYOUT — unchanged from v4
+   * ════════════════════════════════════════════════════════════════════ */
+  --space-1:    0.25rem;
+  --space-2:    0.5rem;
+  --space-3:    0.75rem;
+  --space-4:    1rem;
+  --space-5:    1.25rem;
+  --space-6:    1.5rem;
+  --space-8:    2rem;
+  --space-10:   2.5rem;
+  --space-12:   3rem;
+
+  --radius-xs:    4px;
+  --radius-sm:    8px;
+  --radius-md:    12px;
+  --radius-lg:    16px;
+  --radius-xl:    20px;
+  --radius-pill:  999px;
+  --rule-hair:    1px;
+
+  --ease-out:     cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-in:      cubic-bezier(0.55, 0.06, 0.68, 0.19);
+  --ease-in-out:  cubic-bezier(0.65, 0.05, 0.36, 1);
+  --dur-fast:     150ms;
+  --dur-base:     220ms;
+  --dur-slow:     320ms;
+
+  --sidebar-w:    232px;
+  --topbar-h:     72px;
+  --content-max:  1480px;
+}

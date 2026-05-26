@@ -2629,16 +2629,49 @@
       }
 
       // ── Animations ─────────────────────────────────────────────
+      // With vector-effect="non-scaling-stroke", stroke-dasharray is
+      // interpreted in *viewport pixels* while getTotalLength() returns
+      // user units. We sample the path at 60 points and apply the actual
+      // viewport scale to get the rendered length in screen pixels.
+      function getRenderedLength(pathEl) {
+        const rect = svg.getBoundingClientRect();
+        if (!rect.width || !rect.height) return pathEl.getTotalLength();
+        const xScale = rect.width / W;
+        const yScale = rect.height / H;
+        const userLen = pathEl.getTotalLength();
+        if (!userLen) return 0;
+        const STEPS = 60;
+        let total = 0;
+        let prev = pathEl.getPointAtLength(0);
+        for (let i = 1; i <= STEPS; i++) {
+          const cur = pathEl.getPointAtLength((i / STEPS) * userLen);
+          const dx = (cur.x - prev.x) * xScale;
+          const dy = (cur.y - prev.y) * yScale;
+          total += Math.sqrt(dx * dx + dy * dy);
+          prev = cur;
+        }
+        // Tiny padding to avoid sub-pixel rounding cutting the tail.
+        return total + 2;
+      }
+
+      let drawInToken = 0;
       function drawInLine() {
-        const length = linePath.getTotalLength();
+        const myToken = ++drawInToken;
+        const length = getRenderedLength(linePath);
         linePath.style.transition = "none";
         linePath.style.strokeDasharray = length;
         linePath.style.strokeDashoffset = length;
         linePath.style.opacity = "1";
-        // Force reflow so the next transition takes effect.
         void linePath.getBoundingClientRect();
         linePath.style.transition = "stroke-dashoffset 700ms cubic-bezier(0.22, 0.61, 0.36, 1)";
         linePath.style.strokeDashoffset = "0";
+        // After the draw-in completes, clear the dasharray so a window
+        // resize doesn't re-introduce a phantom dash.
+        setTimeout(() => {
+          if (myToken !== drawInToken) return; // a newer animation took over
+          linePath.style.strokeDasharray = "none";
+          linePath.style.strokeDashoffset = "0";
+        }, 750);
       }
 
       function renderChart(start, end, initial) {

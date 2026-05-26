@@ -1,0 +1,2868 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ardia · Dashboard</title>
+  <meta name="description" content="Fleet operations dashboard for robotized services across hospitality, facilities, and laundry." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="./tokens.css" />
+  <style>
+    /* Hallmark · v4 · macrostructure: Bento Grid · genre: modern-minimal · theme: studied-DNA
+     * v3 baseline with typography swap.
+     * type: Be Vietnam Pro (body, headings, UI) + Geist Mono (tags, kickers,
+     *       short descriptive text, numerics)
+     * paper: oklch(98.6% 0.003 180) · primary: oklch(35% 0.06 175) · signal: oklch(90% 0.19 115)
+     * enrichment: Tier A CSS-art on featured robot card · motion: row-lift · chart-peak-callout
+     * no CSS-driven uppercase anywhere · letter-spacing preserved
+     */
+
+    /* ═══════════════ Reset ═══════════════ */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    html { overflow-x: clip; -webkit-text-size-adjust: 100%; }
+    body { overflow-x: clip; }
+    img, svg { display: block; max-width: 100%; }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    a { color: inherit; text-decoration: none; }
+    button { background: none; border: 0; padding: 0; cursor: pointer; }
+    ul, ol { margin: 0; padding: 0; list-style: none; }
+    table { border-collapse: collapse; width: 100%; }
+
+    /* ═══════════════ Base ═══════════════ */
+    html {
+      font-family: var(--font-body);
+      font-size: 16px;
+      color: var(--color-ink);
+      background: var(--color-paper);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    body {
+      font-size: var(--text-base);
+      line-height: 1.5;
+      letter-spacing: -0.005em;
+      min-height: 100dvh;
+      font-feature-settings: "ss01";
+    }
+
+    .num, [data-num] { font-variant-numeric: tabular-nums; }
+    .mono { font-family: var(--font-mono); }
+
+    ::selection { background: var(--color-signal); color: var(--color-ink); }
+    :focus { outline: none; }
+    :focus-visible {
+      outline: 2px solid var(--color-focus);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+
+    /* ═══════════════ App shell ═══════════════ */
+    .app {
+      display: grid;
+      /* Sidebar column = visual sidebar width + 32px gutter (margin 16px each side)
+         so the floating sidebar keeps its original 232px width. */
+      grid-template-columns: calc(var(--sidebar-w) + 32px) 1fr;
+      grid-template-rows: var(--topbar-h) 1fr;
+      min-height: 100dvh;
+    }
+
+    /* ═══════════════ Sidebar ═══════════════ */
+    .sidebar {
+      grid-column: 1;
+      grid-row: 1 / span 2;
+      position: sticky;
+      top: 16px;
+      align-self: start;
+      height: calc(100dvh - 32px);
+      margin: 16px;
+      background: var(--color-paper-2);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      padding: var(--space-6) 0 var(--space-4);
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-rule-strong) transparent;
+    }
+    .sidebar__brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 var(--space-5) var(--space-8);
+    }
+    .sidebar__brand-mark {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: var(--color-accent);
+      color: var(--color-signal);
+      display: grid; place-items: center;
+      box-shadow: var(--shadow-card);
+    }
+    .sidebar__brand-name {
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: -0.025em;
+      color: var(--color-ink);
+    }
+    .sidebar__group { padding: 0 var(--space-3); }
+    .sidebar__group + .sidebar__group { margin-top: var(--space-5); }
+    .sidebar__group-label {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--color-ink-mute);
+      padding: 0 var(--space-3) var(--space-3);
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: 10px var(--space-3);
+      border-radius: var(--radius-md);
+      color: var(--color-ink-2);
+      font-size: var(--text-base);
+      font-weight: 500;
+      transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+    }
+    .nav-item:hover { background: var(--color-paper-3); color: var(--color-ink); }
+    .nav-item[aria-current="page"] {
+      background: var(--color-accent);
+      color: var(--color-ink-inv);
+      font-weight: 600;
+      box-shadow: var(--shadow-card);
+    }
+    .nav-item[aria-current="page"] .nav-item__icon { color: var(--color-signal); }
+    .nav-item__icon {
+      width: 18px; height: 18px;
+      color: var(--color-ink-3);
+      flex-shrink: 0;
+    }
+    .nav-item:hover:not([aria-current="page"]) .nav-item__icon { color: var(--color-ink); }
+    .nav-item__badge {
+      margin-left: auto;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 6px;
+      border-radius: 6px;
+      background: var(--color-signal);
+      color: var(--color-ink);
+      font-size: 10.5px;
+      font-weight: 700;
+      display: grid; place-items: center;
+    }
+    .sidebar__footer {
+      margin-top: auto;
+      padding: var(--space-3);
+    }
+    .sidebar__support { display: flex; flex-direction: column; gap: 4px; padding: 0 var(--space-3); }
+    .sidebar__support-link {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: 10px var(--space-3);
+      border-radius: var(--radius-md);
+      color: var(--color-ink-3);
+      font-size: var(--text-base);
+      transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+    }
+    .sidebar__support-link:hover { background: var(--color-paper-3); color: var(--color-ink); }
+    .sidebar__support-link svg { width: 18px; height: 18px; }
+
+    /* ═══════════════ Topbar ═══════════════ */
+    .topbar {
+      grid-column: 2;
+      grid-row: 1;
+      height: var(--topbar-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--space-8);
+      background: var(--color-paper);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .topbar__title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: var(--color-ink);
+      margin: 0;
+    }
+    .topbar__right { display: flex; align-items: center; gap: var(--space-3); }
+
+    .search {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--color-paper-2);
+      border: var(--rule-hair) solid var(--color-rule);
+      color: var(--color-ink-3);
+      transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+    }
+    .search:hover { background: var(--color-paper-3); color: var(--color-ink); }
+
+    .bell {
+      position: relative;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--color-paper-2);
+      border: var(--rule-hair) solid var(--color-rule);
+      color: var(--color-ink-3);
+      display: grid; place-items: center;
+      transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+    }
+    .bell:hover { background: var(--color-paper-3); color: var(--color-ink); }
+    .bell__dot {
+      position: absolute;
+      top: 8px; right: 8px;
+      width: 8px; height: 8px;
+      background: var(--color-signal);
+      border-radius: 50%;
+      border: 2px solid var(--color-paper);
+    }
+
+    .user-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-3);
+      height: 40px;
+      padding: 0 var(--space-4) 0 4px;
+      border-radius: var(--radius-pill);
+      background: var(--color-paper-2);
+      border: var(--rule-hair) solid var(--color-rule);
+      transition: background var(--dur-fast) var(--ease-out);
+    }
+    .user-pill:hover { background: var(--color-paper-3); }
+    .user-pill__avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--color-cat-blush-bg);
+      color: var(--color-cat-blush-fg);
+      display: grid; place-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .user-pill__name {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-ink);
+    }
+    .user-pill__chev { color: var(--color-ink-3); }
+
+    /* ═══════════════ Main ═══════════════ */
+    .main {
+      grid-column: 2;
+      grid-row: 2;
+      padding: var(--space-3) var(--space-8) var(--space-12);
+      width: 100%;
+      max-width: var(--content-max);
+      margin-inline: auto;
+      min-width: 0;
+    }
+
+    /* ═══════════════ Bento grid ═══════════════ */
+    .bento {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: var(--space-5);
+    }
+
+    .card {
+      background: var(--color-paper-2);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      min-width: 0;
+      box-shadow: var(--shadow-card);
+    }
+    .card--featured { grid-column: span 4; }
+    .card--chart    { grid-column: span 8; }
+    .card--activity { grid-column: span 4; }
+    .card--ob       { grid-column: span 8; }
+    .card--donut    { grid-column: span 4; }
+    .card--cta      { grid-column: span 12; }
+
+    /* ═══════════════ Stat trio ═══════════════ */
+    .stat-trio {
+      grid-column: span 8;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-5);
+    }
+    .stat {
+      background: var(--color-paper-2);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      position: relative;
+    }
+    .stat__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .stat__label { font-family: var(--font-mono); font-size: var(--text-sm); color: var(--color-ink-3); font-weight: 500; letter-spacing: 0; }
+    .stat__icon-box {
+      width: 32px; height: 32px;
+      border-radius: 10px;
+      display: grid; place-items: center;
+    }
+    .stat__icon-box svg { width: 16px; height: 16px; }
+    .stat__icon-box--teal   { background: var(--color-primary-50); color: var(--color-accent); }
+    .stat__icon-box--blush  { background: var(--color-cat-blush-bg); color: var(--color-cat-blush-fg); }
+    .stat__icon-box--mint   { background: var(--color-cat-mint-bg); color: var(--color-cat-mint-fg); }
+    .stat__value {
+      font-size: var(--text-stat);
+      font-weight: 700;
+      color: var(--color-ink);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin-top: 2px;
+    }
+    .stat__unit {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-ink-3);
+      letter-spacing: -0.01em;
+      margin-left: 4px;
+    }
+    .stat__bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 28px;
+      margin-top: var(--space-2);
+    }
+    .stat__bars span { flex: 1; background: var(--color-paper-sunk); border-radius: 2px; }
+    .stat__bars span[data-active="true"]   { background: var(--color-accent); }
+    .stat__bars span[data-active="signal"] { background: var(--color-signal); }
+    .stat__delta {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      font-weight: 500;
+      letter-spacing: 0;
+      color: var(--color-success-500);
+    }
+
+    /* ═══════════════ Featured robot card (CSS-art) ═══════════════ */
+    .featured { display: flex; flex-direction: column; gap: var(--space-4); height: 100%; }
+    .featured__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .featured__title-block { display: flex; flex-direction: column; gap: 2px; }
+    .featured__title { font-size: var(--text-md); font-weight: 700; letter-spacing: -0.015em; color: var(--color-ink); }
+    .featured__sub { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-ink-3); }
+    .featured__more {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      color: var(--color-ink-3);
+      display: grid; place-items: center;
+      transition: background var(--dur-fast) var(--ease-out);
+    }
+    .featured__more:hover { background: var(--color-paper-3); color: var(--color-ink); }
+
+    .robot-card {
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-700) 100%);
+      color: var(--color-ink-inv);
+      padding: var(--space-5);
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      min-height: 188px;
+    }
+    .robot-card::before, .robot-card::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .robot-card::before {
+      width: 220px; height: 220px;
+      top: -120px; right: -80px;
+      background: radial-gradient(circle, oklch(40% 0.062 175 / 0.55) 0%, transparent 70%);
+    }
+    .robot-card::after {
+      width: 160px; height: 160px;
+      bottom: -90px; left: -50px;
+      background: radial-gradient(circle, oklch(28% 0.055 175 / 0.5) 0%, transparent 70%);
+    }
+    /* Humanoid robot illustration — bottom-aligned watermark.
+       z-index 0 sits behind the .robot-card__* children (which are z-index 1)
+       so the text always paints on top. Opacity tuned for legibility. */
+    .robot-card__art {
+      position: absolute;
+      right: -6px;
+      bottom: 0;
+      width: 134px;
+      height: auto;
+      opacity: 0.28;
+      pointer-events: none;
+      z-index: 0;
+      filter: saturate(0.7);
+    }
+    .robot-card__top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+    .robot-card__mark {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: oklch(100% 0 0 / 0.12);
+      backdrop-filter: blur(8px);
+      display: grid; place-items: center;
+      color: var(--color-signal);
+    }
+    .robot-card__serial {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--color-ink-inv-2);
+      letter-spacing: 0.02em;
+      position: relative;
+      z-index: 1;
+    }
+    .robot-card__status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--color-ink-inv);
+      position: relative;
+      z-index: 1;
+    }
+    .robot-card__status-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--color-signal);
+      box-shadow: 0 0 0 3px var(--color-signal-glow);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    .robot-card__name {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--color-signal);
+      letter-spacing: -0.025em;
+      line-height: 1;
+      margin-top: var(--space-3);
+      position: relative;
+      z-index: 1;
+    }
+    .robot-card__bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-3);
+      position: relative;
+      z-index: 1;
+      margin-top: auto;
+    }
+    .robot-card__battery {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--color-ink-inv);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+    .robot-card__battery-bar {
+      width: 36px; height: 8px;
+      background: oklch(100% 0 0 / 0.15);
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+    }
+    .robot-card__battery-bar::after {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: var(--level, 87%);
+      background: var(--color-signal);
+      border-radius: 2px;
+    }
+    .robot-card__uptime {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--color-ink-inv-2);
+      letter-spacing: 0.02em;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0.45; }
+    }
+
+    .featured__pager {
+      display: flex;
+      gap: 5px;
+      justify-content: center;
+      margin-top: -2px;
+    }
+    .featured__pager span {
+      width: 18px; height: 4px;
+      border-radius: 2px;
+      background: var(--color-rule-strong);
+    }
+    .featured__pager span[data-on="true"] { background: var(--color-ink); width: 26px; }
+
+    .featured__actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-2);
+      margin-top: var(--space-2);
+    }
+    .featured__action {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: var(--space-3) var(--space-1);
+      border-radius: var(--radius-md);
+      background: var(--color-paper-3);
+      color: var(--color-ink);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0;
+      transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+    }
+    .featured__action:hover { background: var(--color-primary-50); transform: translateY(-1px); }
+    .featured__action svg { width: 16px; height: 16px; color: var(--color-accent); }
+
+    /* ═══════════════ Chart card ═══════════════ */
+    .chart-card__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-5);
+    }
+    .chart-card__title-block { display: flex; flex-direction: column; gap: 2px; }
+    .chart-card__title { font-size: var(--text-md); font-weight: 700; letter-spacing: -0.015em; }
+    .chart-card__sub { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-ink-3); }
+    .chart-card__filter {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 32px;
+      padding: 0 var(--space-3);
+      border-radius: var(--radius-md);
+      background: var(--color-paper-3);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-ink);
+      transition: background var(--dur-fast) var(--ease-out);
+    }
+    .chart-card__filter:hover { background: var(--color-paper-sunk); }
+    .chart-card__filter svg { width: 14px; height: 14px; color: var(--color-ink-3); }
+
+    .chart {
+      position: relative;
+      width: 100%;
+      height: 220px;
+    }
+    .chart svg { width: 100%; height: 100%; display: block; }
+    .chart__peak {
+      position: absolute;
+      background: var(--color-signal);
+      color: var(--color-ink);
+      padding: 5px 10px;
+      border-radius: 6px;
+      letter-spacing: -0.01em;
+      box-shadow: var(--shadow-pop);
+      transform: translate(-50%, -100%);
+      white-space: nowrap;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      align-items: center;
+      transition: opacity var(--dur-fast) var(--ease-out);
+    }
+    .chart__peak-value {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+    .chart__peak-date {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      opacity: 0.6;
+      line-height: 1.1;
+    }
+    .chart__peak-dot {
+      position: absolute;
+      width: 12px; height: 12px;
+      background: var(--color-paper-2);
+      border: 3px solid var(--color-accent);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      transition: opacity var(--dur-fast) var(--ease-out);
+    }
+    .chart svg [data-chart-line],
+    .chart svg [data-chart-fill] {
+      pointer-events: none;
+    }
+    .chart svg [data-chart-line] {
+      will-change: stroke-dashoffset;
+    }
+    .chart svg [data-chart-hit] {
+      cursor: crosshair;
+    }
+    .chart__range {
+      display: flex;
+      gap: var(--space-1);
+      margin-top: var(--space-4);
+      justify-content: center;
+    }
+    .chart__range button {
+      padding: 6px var(--space-3);
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-ink-3);
+      transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+    }
+    .chart__range button:hover { background: var(--color-paper-3); color: var(--color-ink); }
+    .chart__range button[data-hidden="true"] { display: none; }
+    .chart__range button[aria-pressed="true"] {
+      background: var(--color-primary-50);
+      color: var(--color-accent);
+    }
+
+    /* ═══════════════ Recent activity ═══════════════ */
+    .activity__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-4);
+    }
+    .activity__title { font-size: var(--text-md); font-weight: 700; letter-spacing: -0.015em; }
+    .activity__view {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-accent);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .activity__view:hover { text-decoration: underline; }
+    .activity__list { display: flex; flex-direction: column; gap: var(--space-3); }
+    .activity__item {
+      display: grid;
+      grid-template-columns: 36px 1fr auto;
+      align-items: center;
+      gap: var(--space-3);
+    }
+    .activity__icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: grid; place-items: center;
+    }
+    .activity__icon svg { width: 16px; height: 16px; }
+    .activity__icon--mint     { background: var(--color-cat-mint-bg); color: var(--color-cat-mint-fg); }
+    .activity__icon--blush    { background: var(--color-cat-blush-bg); color: var(--color-cat-blush-fg); }
+    .activity__icon--sky      { background: var(--color-cat-sky-bg); color: var(--color-cat-sky-fg); }
+    .activity__icon--lavender { background: var(--color-cat-lavender-bg); color: var(--color-cat-lavender-fg); }
+    .activity__icon--amber    { background: var(--color-cat-amber-bg); color: var(--color-cat-amber-fg); }
+    .activity__name { font-size: var(--text-sm); font-weight: 600; color: var(--color-ink); }
+    .activity__type { font-family: var(--font-mono); font-size: 11.5px; color: var(--color-ink-3); margin-top: 2px; }
+    .activity__time-block { text-align: right; }
+    .activity__date { font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; color: var(--color-ink); font-variant-numeric: tabular-nums; }
+    .activity__when { font-family: var(--font-mono); font-size: 10.5px; color: var(--color-ink-3); margin-top: 2px; }
+
+    /* ═══════════════ Onboarding card ═══════════════ */
+    .ob { display: flex; flex-direction: column; gap: var(--space-4); height: 100%; }
+    .ob__head { display: flex; justify-content: space-between; align-items: center; }
+    .ob__title-block { display: flex; flex-direction: column; gap: 2px; }
+    .ob__title { font-size: var(--text-md); font-weight: 700; letter-spacing: -0.015em; }
+    .ob__sub { font-size: var(--text-xs); color: var(--color-ink-3); }
+    .ob__filter {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-ink-3);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ob__filter svg { width: 14px; height: 14px; }
+    .ob__list { display: flex; flex-direction: column; gap: var(--space-3); }
+    .ob__row {
+      display: grid;
+      grid-template-columns: 38px 1fr 160px auto;
+      gap: var(--space-4);
+      align-items: center;
+      padding: var(--space-3);
+      border-radius: var(--radius-md);
+      background: var(--color-paper-3);
+      transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+    }
+    .ob__row:hover { background: var(--color-paper-sunk); transform: translateY(-1px); }
+    .ob__avatar {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      background: var(--color-paper-dark);
+      color: var(--color-signal);
+      display: grid; place-items: center;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+    .ob__name { font-size: var(--text-sm); font-weight: 700; }
+    .ob__meta { font-family: var(--font-mono); font-size: 11.5px; color: var(--color-ink-3); margin-top: 2px; }
+    .ob__progress { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .ob__bar {
+      height: 6px;
+      background: var(--color-rule);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .ob__bar-fill {
+      height: 100%;
+      background: var(--color-accent);
+      border-radius: 3px;
+      width: var(--pct, 0%);
+      transition: width var(--dur-slow) var(--ease-out);
+    }
+    .ob__bar-fill--full { background: var(--color-signal); }
+    .ob__pct {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--color-ink-2);
+      font-variant-numeric: tabular-nums;
+      align-self: flex-end;
+    }
+    .ob__continue {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 7px 12px;
+      border-radius: var(--radius-md);
+      background: var(--color-paper-2);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-ink);
+      transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+    }
+    .ob__continue:hover { background: var(--color-accent); color: var(--color-ink-inv); }
+    .ob__continue:hover svg { color: var(--color-signal); }
+    .ob__continue svg { width: 12px; height: 12px; color: var(--color-ink-3); transition: color var(--dur-fast) var(--ease-out); }
+
+    /* ═══════════════ Donut card ═══════════════ */
+    .donut__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-4);
+    }
+    .donut__title { font-size: var(--text-md); font-weight: 700; letter-spacing: -0.015em; }
+    .donut__view {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-accent);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .donut__body {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: var(--space-4);
+      align-items: center;
+    }
+    .donut__svg-wrap { display: grid; place-items: center; }
+    .donut__svg { width: 140px; height: 140px; transform: rotate(-90deg); }
+    .donut__svg circle { fill: none; stroke-width: 18; }
+    .donut__svg .track { stroke: var(--color-paper-sunk); }
+    .donut__legend { display: flex; flex-direction: column; gap: var(--space-3); }
+    .donut__legend-row { display: grid; grid-template-columns: 12px 1fr auto; gap: var(--space-3); align-items: center; }
+    .donut__legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+    .donut__legend-name { font-size: var(--text-sm); font-weight: 600; }
+    .donut__legend-sub { font-family: var(--font-mono); font-size: 11px; color: var(--color-ink-3); margin-top: 2px; }
+    .donut__legend-value { font-size: var(--text-sm); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+    /* ═══════════════ Bottom CTA card ═══════════════ */
+    .cta-banner {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: var(--space-6);
+      align-items: center;
+      padding: var(--space-8);
+      background: linear-gradient(135deg, var(--color-primary-700) 0%, var(--color-primary-500) 100%);
+      color: var(--color-ink-inv);
+      border-radius: var(--radius-lg);
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+    .cta-banner::before {
+      content: "";
+      position: absolute;
+      right: -100px; top: -150px;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, oklch(40% 0.062 175 / 0.6) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cta-banner__content { position: relative; z-index: 1; }
+    .cta-banner__kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--color-signal);
+      margin-bottom: var(--space-3);
+    }
+    .cta-banner__title {
+      font-size: var(--text-2xl);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      margin: 0 0 var(--space-3);
+    }
+    .cta-banner__sub {
+      font-size: var(--text-base);
+      color: var(--color-ink-inv-2);
+      max-width: 50ch;
+      line-height: 1.5;
+      margin: 0 0 var(--space-5);
+    }
+    .cta-banner__cta {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      height: 44px;
+      padding: 0 var(--space-5);
+      border-radius: var(--radius-md);
+      background: var(--color-signal);
+      color: var(--color-ink);
+      font-weight: 700;
+      font-size: var(--text-sm);
+      letter-spacing: -0.005em;
+      box-shadow: var(--shadow-signal);
+      transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+    }
+    .cta-banner__cta:hover { transform: translateY(-1px); box-shadow: 0 12px 32px var(--color-signal-glow); }
+    .cta-banner__cta:active { transform: translateY(0); }
+    .cta-banner__stat-row {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+    }
+    .cta-banner__stat {
+      padding: var(--space-4);
+      background: oklch(100% 0 0 / 0.06);
+      border: 1px solid oklch(100% 0 0 / 0.08);
+      border-radius: var(--radius-md);
+      backdrop-filter: blur(8px);
+    }
+    .cta-banner__stat-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.02em;
+      color: var(--color-ink-inv-2);
+      font-weight: 500;
+    }
+    .cta-banner__stat-value {
+      font-size: var(--text-xl);
+      font-weight: 800;
+      color: var(--color-ink-inv);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
+      margin-top: 6px;
+    }
+    .cta-banner__stat-value--signal { color: var(--color-signal); }
+
+    /* ═══════════════ Dropdown component ═══════════════ */
+    /* Reusable dropdown. Optional icon slot on the left.
+       Hover-pill is inset from the menu edges via the menu's 6px padding +
+       the items' radius-sm — matches the reference treatment.
+       Trigger gets aria-expanded + aria-haspopup via JS.
+       All colours pulled from the v3 slate-green token set. */
+    .dropdown {
+      position: relative;
+      display: inline-flex;
+    }
+    .dropdown__menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      z-index: 30;
+      min-width: 220px;
+      padding: 6px;
+      background: var(--color-paper-2);
+      border: var(--rule-hair) solid var(--color-rule);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-pop);
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      /* Closed state */
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-4px);
+      transition:
+        opacity var(--dur-fast) var(--ease-out),
+        transform var(--dur-fast) var(--ease-out),
+        visibility 0s linear var(--dur-fast);
+    }
+    .dropdown[data-open="true"] .dropdown__menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      transition:
+        opacity var(--dur-fast) var(--ease-out),
+        transform var(--dur-fast) var(--ease-out),
+        visibility 0s linear 0s;
+    }
+    .dropdown__menu[data-align="left"] { right: auto; left: 0; }
+
+    .dropdown__item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 9px 10px;
+      border: 0;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--color-ink);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      letter-spacing: -0.003em;
+      text-align: left;
+      cursor: pointer;
+      transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+    }
+    .dropdown__item:hover,
+    .dropdown__item:focus-visible {
+      background: var(--color-paper-3);
+      outline: none;
+    }
+    .dropdown__item-icon {
+      width: 18px; height: 18px;
+      color: var(--color-ink-3);
+      flex-shrink: 0;
+      transition: color var(--dur-fast) var(--ease-out);
+    }
+    .dropdown__item:hover .dropdown__item-icon,
+    .dropdown__item:focus-visible .dropdown__item-icon { color: var(--color-ink); }
+    .dropdown__item-label { flex: 1; }
+    .dropdown__item-trail {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.04em;
+      color: var(--color-ink-3);
+    }
+    .dropdown__item[aria-checked="true"] .dropdown__item-check {
+      color: var(--color-accent);
+    }
+    .dropdown__item-check {
+      width: 14px; height: 14px;
+      color: transparent;
+      flex-shrink: 0;
+    }
+    .dropdown__item--danger { color: var(--color-ink); }
+    .dropdown__item--danger:hover,
+    .dropdown__item--danger:focus-visible {
+      background: var(--color-error-50);
+      color: var(--color-error-700);
+    }
+    .dropdown__item--danger:hover .dropdown__item-icon,
+    .dropdown__item--danger:focus-visible .dropdown__item-icon {
+      color: var(--color-error-700);
+    }
+    .dropdown__sep {
+      height: var(--rule-hair);
+      background: var(--color-rule);
+      margin: 4px 6px;
+    }
+
+    /* Chevron on selection-style triggers rotates when open */
+    .dropdown__chev {
+      transition: transform var(--dur-base) var(--ease-out);
+    }
+    .dropdown[data-open="true"] .dropdown__chev { transform: rotate(180deg); }
+
+    /* ═══════════════ Date range picker ═══════════════ */
+    /* Built on top of the dropdown framework — uses the same .dropdown +
+       data-dropdown wrapper + .dropdown__menu container for open/close.
+       The wider variant overrides the menu's min-width/padding so the
+       picker grid can breathe. v3 slate-green palette throughout. */
+    .dropdown--datepicker .dropdown__menu {
+      min-width: 0;
+      width: max-content;
+      max-width: calc(100vw - var(--space-8) * 2);
+      padding: 0;
+      overflow: hidden;
+      border-radius: var(--radius-lg);
+    }
+
+    .datepicker {
+      display: grid;
+      grid-template-columns: 200px 1fr 1fr;
+      width: 760px;
+      max-width: 100%;
+      background: var(--color-paper-2);
+    }
+
+    /* Presets column ─────────────────────── */
+    .datepicker__presets {
+      grid-column: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 14px 12px;
+      border-right: var(--rule-hair) solid var(--color-rule);
+    }
+    .datepicker__preset {
+      width: 100%;
+      padding: 9px 12px;
+      border: 0;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--color-ink-2);
+      text-align: left;
+      cursor: pointer;
+      transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+    }
+    .datepicker__preset:hover,
+    .datepicker__preset:focus-visible {
+      background: var(--color-paper-3);
+      color: var(--color-ink);
+      outline: none;
+    }
+    .datepicker__preset[data-active="true"] {
+      background: var(--color-paper-3);
+      color: var(--color-ink);
+      font-weight: 600;
+    }
+
+    /* Calendar column ─────────────────────── */
+    .datepicker__cal {
+      padding: 14px 16px;
+      min-width: 0;
+    }
+    .datepicker__cal--left  { grid-column: 2; border-right: var(--rule-hair) solid var(--color-rule); }
+    .datepicker__cal--right { grid-column: 3; }
+
+    .datepicker__head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .datepicker__head-display { display: inline-flex; gap: 6px; }
+    .datepicker__head-month,
+    .datepicker__head-year {
+      display: inline-flex;
+      align-items: center;
+      height: 32px;
+      padding: 0 12px;
+      border: var(--rule-hair) solid var(--color-rule);
+      border-radius: var(--radius-sm);
+      background: var(--color-paper-2);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: 700;
+      letter-spacing: -0.012em;
+      color: var(--color-ink);
+    }
+    .datepicker__head-nav { margin-left: auto; display: inline-flex; gap: 4px; }
+    .datepicker__nav {
+      width: 28px; height: 28px;
+      display: grid; place-items: center;
+      border: var(--rule-hair) solid var(--color-rule);
+      border-radius: var(--radius-sm);
+      background: var(--color-paper-2);
+      color: var(--color-ink-2);
+      cursor: pointer;
+      transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+    }
+    .datepicker__nav:hover { background: var(--color-paper-3); color: var(--color-ink); }
+    .datepicker__nav:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 1px; }
+    .datepicker__nav svg { width: 13px; height: 13px; }
+
+    .datepicker__weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+    .datepicker__weekday {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--color-ink-3);
+      padding: 6px 0;
+    }
+
+    .datepicker__grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+    .datepicker__day {
+      position: relative;
+      display: grid;
+      place-items: center;
+      height: 36px;
+      border: 0;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--color-ink);
+      cursor: pointer;
+      transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+    }
+    .datepicker__day:hover { background: var(--color-paper-3); }
+    .datepicker__day:focus-visible {
+      outline: 2px solid var(--color-focus);
+      outline-offset: -2px;
+    }
+    .datepicker__day[data-outside="true"] { color: var(--color-ink-mute); }
+    .datepicker__day[data-in-range="true"]:not([data-range-start="true"]):not([data-range-end="true"]) {
+      background: var(--color-accent-soft);
+      color: var(--color-accent-hover);
+    }
+    .datepicker__day[data-range-start="true"],
+    .datepicker__day[data-range-end="true"] {
+      background: var(--color-accent);
+      color: var(--color-ink-inv);
+      font-weight: 700;
+    }
+    .datepicker__day[data-today="true"]:not([data-range-start="true"]):not([data-range-end="true"]):not([data-in-range="true"]) {
+      background: var(--color-paper-sunk);
+      color: var(--color-ink);
+      font-weight: 700;
+    }
+
+    /* Footer ─────────────────────── */
+    .datepicker__foot {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+      padding: 14px 18px;
+      border-top: var(--rule-hair) solid var(--color-rule);
+      background: var(--color-paper-2);
+    }
+    .datepicker__range {
+      font-size: var(--text-sm);
+      color: var(--color-ink-3);
+      font-weight: 500;
+    }
+    .datepicker__range-value {
+      color: var(--color-ink);
+      font-weight: 700;
+      margin: 0 2px;
+    }
+    .datepicker__actions { display: inline-flex; gap: 8px; }
+    .datepicker__cancel,
+    .datepicker__apply {
+      height: 36px;
+      padding: 0 18px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      transition:
+        background var(--dur-fast) var(--ease-out),
+        border-color var(--dur-fast) var(--ease-out),
+        color var(--dur-fast) var(--ease-out);
+    }
+    .datepicker__cancel {
+      background: var(--color-paper-2);
+      border: var(--rule-hair) solid var(--color-rule);
+      color: var(--color-ink);
+    }
+    .datepicker__cancel:hover { background: var(--color-paper-3); }
+    .datepicker__apply {
+      background: var(--color-accent);
+      border: var(--rule-hair) solid var(--color-accent);
+      color: var(--color-ink-inv);
+      font-weight: 700;
+      padding: 0 22px;
+    }
+    .datepicker__apply:hover {
+      background: var(--color-accent-hover);
+      border-color: var(--color-accent-hover);
+    }
+
+    @media (max-width: 880px) {
+      .datepicker { width: min(100%, 360px); grid-template-columns: 1fr; }
+      .datepicker__cal--left { border-right: 0; border-bottom: var(--rule-hair) solid var(--color-rule); }
+    }
+
+    /* ═══════════════ Reduced motion ═══════════════ */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 1ms !important; animation-duration: 1ms !important; }
+    }
+
+    /* ═══════════════ Responsive ═══════════════ */
+    @media (max-width: 1180px) {
+      .stat-trio, .card--chart, .card--ob   { grid-column: span 12; }
+      .card--featured, .card--activity, .card--donut { grid-column: span 6; }
+      .cta-banner { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 880px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .topbar, .main { grid-column: 1; }
+      .main { padding: var(--space-5); }
+      .stat-trio { grid-template-columns: 1fr; }
+      .card--featured, .card--activity, .card--donut { grid-column: span 12; }
+      .ob__row { grid-template-columns: 38px 1fr; }
+      .ob__progress, .ob__continue { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- ═════════════ Sidebar ═════════════ -->
+    <aside class="sidebar" aria-label="Primary navigation">
+      <div class="sidebar__brand">
+        <span class="sidebar__brand-mark" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="11" rx="2"/><path d="M8 9V5a4 4 0 0 1 8 0v4"/><circle cx="9" cy="14.5" r="1" fill="currentColor"/><circle cx="15" cy="14.5" r="1" fill="currentColor"/></svg>
+        </span>
+        <span class="sidebar__brand-name">Ardia</span>
+      </div>
+
+      <nav class="sidebar__group" aria-label="Main">
+        <div class="sidebar__group-label">Main</div>
+        <ul>
+          <li>
+            <a class="nav-item" href="#" aria-current="page">
+              <svg class="nav-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+              Dashboard
+            </a>
+          </li>
+          <li>
+            <a class="nav-item" href="#">
+              <svg class="nav-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21V12h6v9"/></svg>
+              Holdings
+            </a>
+          </li>
+          <li>
+            <a class="nav-item" href="#">
+              <svg class="nav-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              Tenants
+              <span class="nav-item__badge">3</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item" href="#">
+              <svg class="nav-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="11" rx="2"/><path d="M8 9V5a4 4 0 0 1 8 0v4"/><circle cx="9" cy="14.5" r="1"/><circle cx="15" cy="14.5" r="1"/></svg>
+              Fleet
+            </a>
+          </li>
+          <li>
+            <a class="nav-item" href="#">
+              <svg class="nav-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><path d="m9 8 3 7"/><path d="m15 8-3 7"/></svg>
+              Workflows
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <nav class="sidebar__group" aria-label="Administration">
+        <div class="sidebar__group-label">Administration</div>
+        <ul>
+          <li>
+            <a class="nav-item" href="#">
+              <svg class="nav-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>
+              Billing
+            </a>
+          </li>
+          <li>
+            <a class="nav-item" href="#">
+              <svg class="nav-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Users
+            </a>
+          </li>
+          <li>
+            <a class="nav-item" href="#">
+              <svg class="nav-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-4-8-12V5l8-3 8 3v5c0 8-8 12-8 12Z"/></svg>
+              Safety
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="sidebar__footer">
+        <div class="sidebar__support">
+          <a class="sidebar__support-link" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".7" fill="currentColor"/></svg>
+            Get help
+          </a>
+          <a class="sidebar__support-link" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+            Settings
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ═════════════ Topbar ═════════════ -->
+    <header class="topbar">
+      <h1 class="topbar__title">Dashboard</h1>
+      <div class="topbar__right">
+        <button class="search" type="button" aria-label="Search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        </button>
+        <button class="bell" type="button" aria-label="Notifications">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          <span class="bell__dot" aria-hidden="true"></span>
+        </button>
+        <button class="user-pill" type="button">
+          <span class="user-pill__avatar" aria-hidden="true">DC</span>
+          <span class="user-pill__name">Daniel C.</span>
+          <svg class="user-pill__chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ═════════════ Main ═════════════ -->
+    <main class="main">
+      <section class="bento" aria-label="Dashboard">
+        <!-- ─── Stat trio (span 8) ─── -->
+        <div class="stat-trio">
+          <article class="stat">
+            <div class="stat__head">
+              <span class="stat__label">Holdings</span>
+              <span class="stat__icon-box stat__icon-box--teal" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21V12h6v9"/></svg>
+              </span>
+            </div>
+            <div class="stat__value" data-num>3</div>
+            <div class="stat__bars" aria-hidden="true">
+              <span style="height: 40%"></span>
+              <span data-active="true" style="height: 65%"></span>
+              <span data-active="true" style="height: 80%"></span>
+              <span data-active="signal" style="height: 100%"></span>
+            </div>
+            <div class="stat__delta">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="m6 14 6-6 6 6"/></svg>
+              +1 this quarter
+            </div>
+          </article>
+
+          <article class="stat">
+            <div class="stat__head">
+              <span class="stat__label">Tenants</span>
+              <span class="stat__icon-box stat__icon-box--blush" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              </span>
+            </div>
+            <div class="stat__value" data-num>3<span class="stat__unit">/ units</span></div>
+            <div class="stat__bars" aria-hidden="true">
+              <span style="height: 30%"></span>
+              <span style="height: 50%"></span>
+              <span data-active="true" style="height: 70%"></span>
+              <span data-active="true" style="height: 90%"></span>
+            </div>
+            <div class="stat__delta">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="m6 14 6-6 6 6"/></svg>
+              Across PT · ES
+            </div>
+          </article>
+
+          <article class="stat">
+            <div class="stat__head">
+              <span class="stat__label">Robots</span>
+              <span class="stat__icon-box stat__icon-box--mint" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="11" rx="2"/><path d="M8 9V5a4 4 0 0 1 8 0v4"/><circle cx="9" cy="14.5" r="1" fill="currentColor"/><circle cx="15" cy="14.5" r="1" fill="currentColor"/></svg>
+              </span>
+            </div>
+            <div class="stat__value" data-num>5<span class="stat__unit">/ Unitree</span></div>
+            <div class="stat__bars" aria-hidden="true">
+              <span data-active="signal" style="height: 60%"></span>
+              <span data-active="signal" style="height: 75%"></span>
+              <span data-active="true" style="height: 50%"></span>
+              <span data-active="signal" style="height: 100%"></span>
+            </div>
+            <div class="stat__delta">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="m6 14 6-6 6 6"/></svg>
+              99.97% uptime
+            </div>
+          </article>
+        </div>
+
+        <!-- ─── Featured robot card (CSS-art) ─── -->
+        <article class="card card--featured" aria-labelledby="featured-title">
+          <div class="featured">
+            <div class="featured__head">
+              <div class="featured__title-block">
+                <span class="featured__title" id="featured-title">Featured robot</span>
+                <span class="featured__sub">Top performer · today</span>
+              </div>
+              <div class="dropdown" data-dropdown>
+                <button class="featured__more" type="button" aria-label="Robot actions" aria-haspopup="menu" aria-expanded="false" data-dropdown-trigger>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                </button>
+                <div class="dropdown__menu" role="menu" aria-label="Robot actions">
+                  <button class="dropdown__item" type="button" role="menuitem">
+                    <svg class="dropdown__item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    <span class="dropdown__item-label">Copy serial</span>
+                  </button>
+                  <button class="dropdown__item" type="button" role="menuitem">
+                    <svg class="dropdown__item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    <span class="dropdown__item-label">Add to favorites</span>
+                  </button>
+                  <button class="dropdown__item" type="button" role="menuitem">
+                    <svg class="dropdown__item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                    <span class="dropdown__item-label">Rename</span>
+                  </button>
+                  <button class="dropdown__item" type="button" role="menuitem">
+                    <svg class="dropdown__item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <span class="dropdown__item-label">Lock controls</span>
+                  </button>
+                  <button class="dropdown__item" type="button" role="menuitem">
+                    <svg class="dropdown__item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18.84 12.25 1.72-1.71h-.02a5.004 5.004 0 0 0-.12-7.07 5.006 5.006 0 0 0-6.95 0l-1.72 1.71"/><path d="m5.17 11.75-1.71 1.71a5.004 5.004 0 0 0 .12 7.07 5.006 5.006 0 0 0 6.95 0l1.71-1.71"/><line x1="8" y1="2" x2="8" y2="5"/><line x1="2" y1="8" x2="5" y2="8"/><line x1="16" y1="19" x2="16" y2="22"/><line x1="19" y1="16" x2="22" y2="16"/></svg>
+                    <span class="dropdown__item-label">Unassign</span>
+                  </button>
+                  <button class="dropdown__item" type="button" role="menuitem">
+                    <svg class="dropdown__item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6Z"/></svg>
+                    <span class="dropdown__item-label">Settings</span>
+                  </button>
+                  <div class="dropdown__sep" role="separator"></div>
+                  <button class="dropdown__item dropdown__item--danger" type="button" role="menuitem">
+                    <svg class="dropdown__item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    <span class="dropdown__item-label">Delete robot</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="robot-card">
+              <!-- Humanoid robot bust — inspired by Unitree H1 silhouette.
+                   Bottom-aligned, semi-transparent, sits behind all text. -->
+              <svg class="robot-card__art" viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg" fill="none" aria-hidden="true">
+                <defs>
+                  <linearGradient id="v3RobotBody" x1="0.5" y1="0" x2="0.5" y2="1">
+                    <stop offset="0%" stop-color="#f1f3f4"/>
+                    <stop offset="100%" stop-color="#9aa0a6"/>
+                  </linearGradient>
+                  <linearGradient id="v3RobotArmL" x1="0" y1="0.5" x2="1" y2="0.5">
+                    <stop offset="0%" stop-color="#80868b"/>
+                    <stop offset="100%" stop-color="#dadce0"/>
+                  </linearGradient>
+                  <linearGradient id="v3RobotArmR" x1="1" y1="0.5" x2="0" y2="0.5">
+                    <stop offset="0%" stop-color="#80868b"/>
+                    <stop offset="100%" stop-color="#dadce0"/>
+                  </linearGradient>
+                  <linearGradient id="v3VisorGlow" x1="0" y1="0.5" x2="1" y2="0.5">
+                    <stop offset="0%" stop-color="#a0e7c0"/>
+                    <stop offset="50%" stop-color="#dbff8c"/>
+                    <stop offset="100%" stop-color="#a0e7c0"/>
+                  </linearGradient>
+                </defs>
+
+                <!-- LEFT shoulder + arm -->
+                <path d="M 8 240 L 8 156 Q 8 142 22 134 Q 38 128 58 134 L 64 156 L 64 240 Z" fill="url(#v3RobotArmL)"/>
+                <!-- RIGHT shoulder + arm -->
+                <path d="M 192 240 L 192 156 Q 192 142 178 134 Q 162 128 142 134 L 136 156 L 136 240 Z" fill="url(#v3RobotArmR)"/>
+                <!-- TORSO -->
+                <path d="M 64 156 L 136 156 L 136 240 L 64 240 Z" fill="url(#v3RobotBody)"/>
+                <!-- Chest panel inset -->
+                <rect x="78" y="172" width="44" height="56" rx="3" fill="#80868b" opacity="0.32"/>
+                <!-- Chest center seam -->
+                <line x1="100" y1="160" x2="100" y2="240" stroke="#5f6368" stroke-width="0.6" opacity="0.45"/>
+                <!-- Shoulder joints -->
+                <circle cx="64" cy="164" r="3" fill="#5f6368" opacity="0.55"/>
+                <circle cx="136" cy="164" r="3" fill="#5f6368" opacity="0.55"/>
+
+                <!-- NECK / collar -->
+                <path d="M 84 104 L 84 134 Q 84 150 100 154 Q 116 150 116 134 L 116 104 Z" fill="#0e0e0e"/>
+                <!-- Shadow under chin -->
+                <ellipse cx="100" cy="146" rx="13" ry="3" fill="#000" opacity="0.35"/>
+
+                <!-- HEAD / helmet -->
+                <path d="M 100 18 C 64 18 36 40 36 78 C 36 100 48 120 64 128 C 80 136 100 136 100 136 C 100 136 120 136 136 128 C 152 120 164 100 164 78 C 164 40 136 18 100 18 Z" fill="#0e0e0e"/>
+                <!-- Helmet top sheen -->
+                <ellipse cx="100" cy="34" rx="40" ry="7" fill="#ffffff" opacity="0.07"/>
+
+                <!-- VISOR (dark area behind glow) -->
+                <rect x="62" y="70" width="76" height="28" rx="7" fill="#000"/>
+                <!-- VISOR GLOW OUTLINE — curves around the visor -->
+                <path d="M 58 70 Q 48 84 48 92 Q 48 104 60 110 L 140 110 Q 152 104 152 92 Q 152 84 142 70 Q 134 60 122 60 L 78 60 Q 66 60 58 70 Z" stroke="url(#v3VisorGlow)" stroke-width="2.4" stroke-linejoin="round" fill="none"/>
+                <!-- Glow accent on visor edge -->
+                <circle cx="72" cy="76" r="1.4" fill="#dbff8c" opacity="0.9"/>
+              </svg>
+              <div class="robot-card__top">
+                <span class="robot-card__mark" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="11" rx="2"/><path d="M8 9V5a4 4 0 0 1 8 0v4"/><circle cx="9" cy="14.5" r="1" fill="currentColor"/><circle cx="15" cy="14.5" r="1" fill="currentColor"/></svg>
+                </span>
+                <span class="robot-card__status">
+                  <span class="robot-card__status-dot" aria-hidden="true"></span>
+                  Active
+                </span>
+              </div>
+              <div class="robot-card__serial" data-num>S/N · GO2-A2839</div>
+              <div class="robot-card__name">Semilha</div>
+              <div class="robot-card__bottom">
+                <span class="robot-card__battery">
+                  <span class="robot-card__battery-bar" aria-hidden="true" style="--level: 87%"></span>
+                  87%
+                </span>
+                <span class="robot-card__uptime">08:42:11</span>
+              </div>
+            </div>
+
+            <div class="featured__pager" aria-hidden="true">
+              <span data-on="true"></span>
+              <span></span>
+              <span></span>
+            </div>
+
+            <div class="featured__actions">
+              <button class="featured__action" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16" fill="currentColor"/></svg>
+                Resume
+              </button>
+              <button class="featured__action" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+                Pause
+              </button>
+              <button class="featured__action" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                Locate
+              </button>
+              <button class="featured__action" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h6"/><path d="M15 12h6"/><path d="M9 7v10l3-2 3 2V7"/></svg>
+                Telemetry
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- ─── Operations chart ─── -->
+        <article class="card card--chart" aria-labelledby="chart-title">
+          <div class="chart-card__head">
+            <div class="chart-card__title-block">
+              <span class="chart-card__title" id="chart-title">Operations volume</span>
+              <span class="chart-card__sub">Tasks completed across the fleet</span>
+            </div>
+            <div class="dropdown dropdown--datepicker" data-dropdown>
+              <button class="chart-card__filter" type="button" aria-haspopup="dialog" aria-expanded="false" data-dropdown-trigger>
+                <span data-datepicker-trigger-label>22 Apr – 21 May, 2026</span>
+                <svg class="dropdown__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <div class="dropdown__menu" role="dialog" aria-label="Pick date range">
+                <div class="datepicker" data-datepicker>
+                  <!-- Presets -->
+                  <div class="datepicker__presets" role="group" aria-label="Quick ranges">
+                    <button class="datepicker__preset" type="button" data-preset="today">Today</button>
+                    <button class="datepicker__preset" type="button" data-preset="last-7">Last 7 days</button>
+                    <button class="datepicker__preset" type="button" data-preset="last-30" data-active="true">Last 30 days</button>
+                    <button class="datepicker__preset" type="button" data-preset="last-3m">Last 3 months</button>
+                    <button class="datepicker__preset" type="button" data-preset="last-12m">Last 12 months</button>
+                    <button class="datepicker__preset" type="button" data-preset="mtd">Month to date</button>
+                    <button class="datepicker__preset" type="button" data-preset="ytd">Year to date</button>
+                    <button class="datepicker__preset" type="button" data-preset="all">All time</button>
+                  </div>
+
+                  <!-- Left calendar -->
+                  <div class="datepicker__cal datepicker__cal--left">
+                    <div class="datepicker__head">
+                      <div class="datepicker__head-display">
+                        <span class="datepicker__head-month" data-head-month-left>April</span>
+                        <span class="datepicker__head-year" data-head-year-left>2026</span>
+                      </div>
+                      <div class="datepicker__head-nav">
+                        <button class="datepicker__nav" type="button" data-nav="prev" aria-label="Previous month">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                        </button>
+                        <button class="datepicker__nav" type="button" data-nav="next" aria-label="Next month">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="datepicker__weekdays" aria-hidden="true">
+                      <span class="datepicker__weekday">Su</span>
+                      <span class="datepicker__weekday">Mo</span>
+                      <span class="datepicker__weekday">Tu</span>
+                      <span class="datepicker__weekday">We</span>
+                      <span class="datepicker__weekday">Th</span>
+                      <span class="datepicker__weekday">Fr</span>
+                      <span class="datepicker__weekday">Sa</span>
+                    </div>
+                    <div class="datepicker__grid" data-grid="left" role="grid"></div>
+                  </div>
+
+                  <!-- Right calendar -->
+                  <div class="datepicker__cal datepicker__cal--right">
+                    <div class="datepicker__head">
+                      <div class="datepicker__head-display">
+                        <span class="datepicker__head-month" data-head-month-right>May</span>
+                        <span class="datepicker__head-year" data-head-year-right>2026</span>
+                      </div>
+                      <div class="datepicker__head-nav">
+                        <button class="datepicker__nav" type="button" data-nav="prev" aria-label="Previous month">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                        </button>
+                        <button class="datepicker__nav" type="button" data-nav="next" aria-label="Next month">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="datepicker__weekdays" aria-hidden="true">
+                      <span class="datepicker__weekday">Su</span>
+                      <span class="datepicker__weekday">Mo</span>
+                      <span class="datepicker__weekday">Tu</span>
+                      <span class="datepicker__weekday">We</span>
+                      <span class="datepicker__weekday">Th</span>
+                      <span class="datepicker__weekday">Fr</span>
+                      <span class="datepicker__weekday">Sa</span>
+                    </div>
+                    <div class="datepicker__grid" data-grid="right" role="grid"></div>
+                  </div>
+
+                  <!-- Footer -->
+                  <div class="datepicker__foot">
+                    <div class="datepicker__range">
+                      Range:
+                      <span class="datepicker__range-value" data-range-start-display>22nd April, 2026</span>
+                      –
+                      <span class="datepicker__range-value" data-range-end-display>21st May, 2026</span>
+                    </div>
+                    <div class="datepicker__actions">
+                      <button class="datepicker__cancel" type="button" data-datepicker-cancel>Cancel</button>
+                      <button class="datepicker__apply" type="button" data-datepicker-apply>Apply</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart" data-chart>
+            <svg viewBox="0 0 600 220" preserveAspectRatio="none" aria-label="Operations volume over time" role="img">
+              <defs>
+                <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="oklch(35% 0.06 175)" stop-opacity="0.18"/>
+                  <stop offset="100%" stop-color="oklch(35% 0.06 175)" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <g stroke="oklch(92% 0.008 180)" stroke-width="1" stroke-dasharray="2 4" pointer-events="none">
+                <line x1="0" y1="40"  x2="600" y2="40"/>
+                <line x1="0" y1="90"  x2="600" y2="90"/>
+                <line x1="0" y1="140" x2="600" y2="140"/>
+                <line x1="0" y1="190" x2="600" y2="190"/>
+              </g>
+              <path data-chart-fill fill="url(#chartFill)" d=""/>
+              <path data-chart-line fill="none" stroke="oklch(35% 0.06 175)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" d=""/>
+              <line data-chart-guide x1="0" y1="0" x2="0" y2="220" stroke="oklch(35% 0.06 175 / 0.35)" stroke-width="1" stroke-dasharray="3 3" vector-effect="non-scaling-stroke" pointer-events="none" style="display: none;"/>
+              <rect data-chart-hit x="0" y="0" width="600" height="220" fill="transparent"/>
+            </svg>
+            <div class="chart__peak-dot" data-chart-marker aria-hidden="true" style="display: none;"></div>
+            <div class="chart__peak" data-chart-tooltip role="status" aria-live="polite" style="display: none;">
+              <span class="chart__peak-value" data-tooltip-value>0</span>
+              <span class="chart__peak-date" data-tooltip-date>—</span>
+            </div>
+          </div>
+
+          <div class="chart__range" role="tablist" aria-label="Range">
+            <button type="button" data-range-tab="1d" aria-pressed="false">1D</button>
+            <button type="button" data-range-tab="5d" aria-pressed="false">5D</button>
+            <button type="button" data-range-tab="1m" aria-pressed="true">1M</button>
+            <button type="button" data-range-tab="3m" aria-pressed="false">3M</button>
+            <button type="button" data-range-tab="6m" aria-pressed="false">6M</button>
+            <button type="button" data-range-tab="1y" aria-pressed="false">1Y</button>
+            <button type="button" data-range-tab="custom" aria-pressed="false" data-hidden="true">Custom</button>
+          </div>
+        </article>
+
+        <!-- ─── Recent activity ─── -->
+        <article class="card card--activity" aria-labelledby="activity-title">
+          <div class="activity__head">
+            <h3 class="activity__title" id="activity-title">Recent operations</h3>
+            <a class="activity__view" href="#">View all
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+          </div>
+          <div class="activity__list">
+            <div class="activity__item">
+              <span class="activity__icon activity__icon--mint" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-4-8-12V5l8-3 8 3v5c0 8-8 12-8 12Z"/><path d="m9 12 2 2 4-4"/></svg>
+              </span>
+              <div>
+                <div class="activity__name">Pool walkthrough</div>
+                <div class="activity__type">Sissi · Pestana Lido</div>
+              </div>
+              <div class="activity__time-block">
+                <div class="activity__date" data-num>May 21</div>
+                <div class="activity__when">14:08</div>
+              </div>
+            </div>
+
+            <div class="activity__item">
+              <span class="activity__icon activity__icon--sky" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
+              </span>
+              <div>
+                <div class="activity__name">Linen delivery</div>
+                <div class="activity__type">Marola · Serlima Norte</div>
+              </div>
+              <div class="activity__time-block">
+                <div class="activity__date" data-num>May 21</div>
+                <div class="activity__when">13:42</div>
+              </div>
+            </div>
+
+            <div class="activity__item">
+              <span class="activity__icon activity__icon--blush" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+              </span>
+              <div>
+                <div class="activity__name">Room turnover</div>
+                <div class="activity__type">Semilha · Pestana Lido</div>
+              </div>
+              <div class="activity__time-block">
+                <div class="activity__date" data-num>May 21</div>
+                <div class="activity__when">11:15</div>
+              </div>
+            </div>
+
+            <div class="activity__item">
+              <span class="activity__icon activity__icon--lavender" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V3"/><path d="M16 7V3"/></svg>
+              </span>
+              <div>
+                <div class="activity__name">Lobby patrol</div>
+                <div class="activity__type">Portinho · Pestana Madrid</div>
+              </div>
+              <div class="activity__time-block">
+                <div class="activity__date" data-num>May 21</div>
+                <div class="activity__when">09:30</div>
+              </div>
+            </div>
+
+            <div class="activity__item">
+              <span class="activity__icon activity__icon--amber" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor"/></svg>
+              </span>
+              <div>
+                <div class="activity__name">Charging cycle</div>
+                <div class="activity__type">Onda · Serlima Norte</div>
+              </div>
+              <div class="activity__time-block">
+                <div class="activity__date" data-num>May 21</div>
+                <div class="activity__when">08:00</div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ─── Onboarding queue ─── -->
+        <article class="card card--ob" aria-labelledby="ob-title">
+          <div class="ob">
+            <div class="ob__head">
+              <div class="ob__title-block">
+                <h3 class="ob__title" id="ob-title">Onboarding queue</h3>
+                <span class="ob__sub">Holdings being configured by the specialist team</span>
+              </div>
+              <div class="dropdown" data-dropdown>
+                <button class="ob__filter" type="button" aria-haspopup="menu" aria-expanded="false" data-dropdown-trigger>
+                  This month
+                  <svg class="dropdown__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
+                <div class="dropdown__menu" role="menu" aria-label="Time range">
+                  <button class="dropdown__item" type="button" role="menuitemradio" aria-checked="false">
+                    <svg class="dropdown__item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                    <span class="dropdown__item-label">Today</span>
+                  </button>
+                  <button class="dropdown__item" type="button" role="menuitemradio" aria-checked="false">
+                    <svg class="dropdown__item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                    <span class="dropdown__item-label">This week</span>
+                  </button>
+                  <button class="dropdown__item" type="button" role="menuitemradio" aria-checked="true">
+                    <svg class="dropdown__item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                    <span class="dropdown__item-label">This month</span>
+                  </button>
+                  <button class="dropdown__item" type="button" role="menuitemradio" aria-checked="false">
+                    <svg class="dropdown__item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                    <span class="dropdown__item-label">This quarter</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="ob__list">
+              <div class="ob__row">
+                <span class="ob__avatar" aria-hidden="true">GP</span>
+                <div>
+                  <div class="ob__name">Grupo Pestana</div>
+                  <div class="ob__meta">Hospitality · 2 tenants · 3 robots</div>
+                </div>
+                <div class="ob__progress" aria-label="7 of 8 sections complete">
+                  <div class="ob__bar"><span class="ob__bar-fill" style="--pct: 88%"></span></div>
+                  <span class="ob__pct" data-num>7 / 8 · 88%</span>
+                </div>
+                <a class="ob__continue" href="#">
+                  Continue
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </a>
+              </div>
+
+              <div class="ob__row">
+                <span class="ob__avatar" aria-hidden="true">GV</span>
+                <div>
+                  <div class="ob__name">Grupo Vila Galé</div>
+                  <div class="ob__meta">Hospitality · awaiting tenant intake</div>
+                </div>
+                <div class="ob__progress" aria-label="0 of 8 sections complete">
+                  <div class="ob__bar"><span class="ob__bar-fill" style="--pct: 0%"></span></div>
+                  <span class="ob__pct" data-num>0 / 8 · 0%</span>
+                </div>
+                <a class="ob__continue" href="#">
+                  Start
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </a>
+              </div>
+
+              <div class="ob__row">
+                <span class="ob__avatar" aria-hidden="true">SG</span>
+                <div>
+                  <div class="ob__name">Serlima Group</div>
+                  <div class="ob__meta">Laundry &amp; facilities · concluded May 11</div>
+                </div>
+                <div class="ob__progress" aria-label="8 of 8 sections complete">
+                  <div class="ob__bar"><span class="ob__bar-fill ob__bar-fill--full" style="--pct: 100%"></span></div>
+                  <span class="ob__pct" data-num>8 / 8 · 100%</span>
+                </div>
+                <a class="ob__continue" href="#">
+                  Review
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ─── Donut: robot allocation ─── -->
+        <article class="card card--donut" aria-labelledby="donut-title">
+          <div class="donut__head">
+            <h3 class="donut__title" id="donut-title">Robot allocation</h3>
+            <a class="donut__view" href="#">View all
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+          </div>
+          <div class="donut__body">
+            <div class="donut__svg-wrap">
+              <!-- Donut: 5 robots distributed:
+                   Pestana Lido    = 2 (40%) — deep teal
+                   Pestana Madrid  = 1 (20%) — signal lime
+                   Serlima Norte   = 2 (40%) — mint
+                   r=58, circumference ≈ 364.4
+                   40% = 145.8 / 20% = 72.9 -->
+              <svg class="donut__svg" viewBox="0 0 140 140" aria-hidden="true">
+                <circle class="track" cx="70" cy="70" r="58"/>
+                <circle cx="70" cy="70" r="58" stroke="oklch(35% 0.06 175)" stroke-dasharray="145.8 218.6" stroke-dashoffset="0"/>
+                <circle cx="70" cy="70" r="58" stroke="oklch(90% 0.19 115)" stroke-dasharray="72.9 291.5" stroke-dashoffset="-145.8"/>
+                <circle cx="70" cy="70" r="58" stroke="oklch(45% 0.09 155)" stroke-dasharray="145.8 218.6" stroke-dashoffset="-218.7"/>
+              </svg>
+            </div>
+            <div class="donut__legend">
+              <div class="donut__legend-row">
+                <span class="donut__legend-dot" style="background: oklch(35% 0.06 175);" aria-hidden="true"></span>
+                <div>
+                  <div class="donut__legend-name">Pestana Lido</div>
+                  <div class="donut__legend-sub">2 robots</div>
+                </div>
+                <span class="donut__legend-value" data-num>40%</span>
+              </div>
+              <div class="donut__legend-row">
+                <span class="donut__legend-dot" style="background: oklch(90% 0.19 115);" aria-hidden="true"></span>
+                <div>
+                  <div class="donut__legend-name">Pestana Madrid</div>
+                  <div class="donut__legend-sub">1 robot</div>
+                </div>
+                <span class="donut__legend-value" data-num>20%</span>
+              </div>
+              <div class="donut__legend-row">
+                <span class="donut__legend-dot" style="background: oklch(45% 0.09 155);" aria-hidden="true"></span>
+                <div>
+                  <div class="donut__legend-name">Serlima Norte</div>
+                  <div class="donut__legend-sub">2 robots</div>
+                </div>
+                <span class="donut__legend-value" data-num>40%</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ─── Bottom CTA banner ─── -->
+        <article class="card card--cta" style="padding: 0; background: transparent; box-shadow: none;">
+          <div class="cta-banner">
+            <div class="cta-banner__content">
+              <div class="cta-banner__kicker">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="0" y="0" width="24" height="24" rx="3"/></svg>
+                New holding
+              </div>
+              <h3 class="cta-banner__title">Bring a new group on board</h3>
+              <p class="cta-banner__sub">Onboarding is hands-on, our specialist team configures holdings, tenants, product lines and the fleet directly with you. Most groups go live in under four weeks.</p>
+              <a class="cta-banner__cta" href="#">
+                Start onboarding
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              </a>
+            </div>
+            <div class="cta-banner__stat-row">
+              <div class="cta-banner__stat">
+                <div class="cta-banner__stat-label">Avg time-to-live</div>
+                <div class="cta-banner__stat-value" data-num>3.6w</div>
+              </div>
+              <div class="cta-banner__stat">
+                <div class="cta-banner__stat-label">Specialist team</div>
+                <div class="cta-banner__stat-value cta-banner__stat-value--signal" data-num>4 / 4</div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       Sandbox affordance — NOT part of the Ardia UI.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <a href="../" class="sandbox-back" aria-label="Back to versions index">
+    <span class="sandbox-back__kicker">Sandbox</span>
+    <span class="sandbox-back__sep" aria-hidden="true"></span>
+    <span class="sandbox-back__body">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>
+      </svg>
+      Back to index
+    </span>
+  </a>
+  <style>
+    .sandbox-back {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 9999;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px 8px 10px;
+      background: rgba(255, 255, 255, 0.82);
+      -webkit-backdrop-filter: blur(10px) saturate(140%);
+      backdrop-filter: blur(10px) saturate(140%);
+      border: 1px dashed #8a8a8a;
+      border-radius: 10px;
+      font-family: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+      font-size: 11px;
+      color: #2a2a2a;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+      transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
+    }
+    .sandbox-back:hover {
+      background: rgba(255, 255, 255, 0.96);
+      border-color: #2a2a2a;
+      color: #000;
+      transform: translateY(-1px);
+    }
+    .sandbox-back:active { transform: translateY(0); }
+    .sandbox-back__kicker {
+      font-family: ui-monospace, "Geist Mono", "SF Mono", Menlo, monospace;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: #8a8a8a;
+      font-size: 10px;
+    }
+    .sandbox-back__sep { width: 1px; height: 11px; background: #c8c8c8; }
+    .sandbox-back__body { display: inline-flex; align-items: center; gap: 6px; }
+    @media (prefers-reduced-motion: reduce) {
+      .sandbox-back { transition: none; }
+      .sandbox-back:hover { transform: none; }
+    }
+    @media print { .sandbox-back { display: none; } }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       Dropdown interactivity — minimal, dependency-free.
+       Handles toggle, click-outside-to-close, Escape, and keyboard nav
+       (Arrow Up/Down, Home/End) within an open menu. Single-select
+       menus also update aria-checked on click.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <script>
+    (function () {
+      const dropdowns = document.querySelectorAll("[data-dropdown]");
+
+      function closeAll(except) {
+        dropdowns.forEach((d) => {
+          if (d === except) return;
+          if (d.dataset.open === "true") {
+            d.dataset.open = "false";
+            d.querySelector("[data-dropdown-trigger]")?.setAttribute("aria-expanded", "false");
+          }
+        });
+      }
+
+      function focusFirstItem(menu) {
+        const first = menu.querySelector('[role="menuitem"], [role="menuitemradio"]');
+        first?.focus();
+      }
+
+      dropdowns.forEach((dropdown) => {
+        const trigger = dropdown.querySelector("[data-dropdown-trigger]");
+        const menu = dropdown.querySelector(".dropdown__menu");
+        if (!trigger || !menu) return;
+
+        trigger.addEventListener("click", (event) => {
+          event.stopPropagation();
+          const isOpen = dropdown.dataset.open === "true";
+          closeAll(dropdown);
+          if (isOpen) {
+            dropdown.dataset.open = "false";
+            trigger.setAttribute("aria-expanded", "false");
+          } else {
+            dropdown.dataset.open = "true";
+            trigger.setAttribute("aria-expanded", "true");
+            requestAnimationFrame(() => focusFirstItem(menu));
+          }
+        });
+
+        // Keyboard navigation within the menu
+        menu.addEventListener("keydown", (event) => {
+          const items = Array.from(menu.querySelectorAll('[role="menuitem"], [role="menuitemradio"]'));
+          const currentIdx = items.indexOf(document.activeElement);
+
+          if (event.key === "ArrowDown") {
+            event.preventDefault();
+            items[(currentIdx + 1 + items.length) % items.length]?.focus();
+          } else if (event.key === "ArrowUp") {
+            event.preventDefault();
+            items[(currentIdx - 1 + items.length) % items.length]?.focus();
+          } else if (event.key === "Home") {
+            event.preventDefault();
+            items[0]?.focus();
+          } else if (event.key === "End") {
+            event.preventDefault();
+            items[items.length - 1]?.focus();
+          } else if (event.key === "Tab") {
+            // Let Tab close the dropdown naturally
+            dropdown.dataset.open = "false";
+            trigger.setAttribute("aria-expanded", "false");
+          }
+        });
+
+        // Selection-style menus (radio) — clicking an item updates aria-checked
+        menu.querySelectorAll('[role="menuitemradio"]').forEach((item) => {
+          item.addEventListener("click", () => {
+            menu.querySelectorAll('[role="menuitemradio"]').forEach((sibling) => {
+              sibling.setAttribute("aria-checked", "false");
+            });
+            item.setAttribute("aria-checked", "true");
+
+            // Mirror the chosen label back into the trigger (skip if it carries no text node)
+            const label = item.querySelector(".dropdown__item-label")?.textContent;
+            const triggerText = Array.from(trigger.childNodes).find(
+              (n) => n.nodeType === Node.TEXT_NODE && n.textContent.trim()
+            );
+            if (label && triggerText) triggerText.textContent = label;
+
+            dropdown.dataset.open = "false";
+            trigger.setAttribute("aria-expanded", "false");
+            trigger.focus();
+          });
+        });
+
+        // Context-menu items (non-radio) — close on click
+        menu.querySelectorAll('[role="menuitem"]').forEach((item) => {
+          item.addEventListener("click", () => {
+            dropdown.dataset.open = "false";
+            trigger.setAttribute("aria-expanded", "false");
+            trigger.focus();
+          });
+        });
+      });
+
+      // Click outside any dropdown closes them. Clicks INSIDE an open
+      // dropdown (e.g. picking a day in the date picker) keep it open.
+      document.addEventListener("click", (event) => {
+        const inside = event.target.closest('[data-dropdown][data-open="true"]');
+        if (!inside) closeAll();
+      });
+
+      // Escape closes whichever is open and returns focus to its trigger
+      document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape") return;
+        dropdowns.forEach((d) => {
+          if (d.dataset.open === "true") {
+            d.dataset.open = "false";
+            const t = d.querySelector("[data-dropdown-trigger]");
+            t?.setAttribute("aria-expanded", "false");
+            t?.focus();
+          }
+        });
+      });
+    })();
+  </script>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       Date range picker — stateful, range selection with hover preview,
+       8 working presets, two-month navigation. The dropdown framework
+       above handles open/close + click-outside + Esc; this module wires
+       the picker-specific behaviour.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <script>
+    (function () {
+      const picker = document.querySelector("[data-datepicker]");
+      if (!picker) return;
+
+      const dropdown = picker.closest("[data-dropdown]");
+      const trigger = dropdown.querySelector("[data-dropdown-trigger]");
+      const triggerLabel = trigger.querySelector("[data-datepicker-trigger-label]");
+      const leftGrid = picker.querySelector('[data-grid="left"]');
+      const rightGrid = picker.querySelector('[data-grid="right"]');
+      const leftMonth = picker.querySelector("[data-head-month-left]");
+      const leftYear = picker.querySelector("[data-head-year-left]");
+      const rightMonth = picker.querySelector("[data-head-month-right]");
+      const rightYear = picker.querySelector("[data-head-year-right]");
+      const startDisplay = picker.querySelector("[data-range-start-display]");
+      const endDisplay = picker.querySelector("[data-range-end-display]");
+
+      const MONTHS_LONG = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+      const MONTHS_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      const DAY_MS = 24 * 60 * 60 * 1000;
+
+      // Today is fixed to 2026-05-21 to match the rest of the demo data.
+      const TODAY = startOfDay(new Date(2026, 4, 21));
+
+      // Initial range: last 30 days (Apr 22 – May 21, 2026)
+      let rangeStart = startOfDay(new Date(2026, 3, 22));
+      let rangeEnd = TODAY;
+      let pendingStart = new Date(rangeStart);
+      let pendingEnd = new Date(rangeEnd);
+      let hoverDate = null;
+
+      // Left calendar starts on Apr 2026, right on May 2026 (so end-of-range is visible).
+      let viewMonth = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), 1);
+
+      // ── Helpers ────────────────────────────────────────────────
+      function startOfDay(d) {
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      }
+      function sameDay(a, b) {
+        return a && b && a.getTime() === b.getTime();
+      }
+      function ord(n) {
+        if (n % 100 >= 11 && n % 100 <= 13) return "th";
+        const last = n % 10;
+        return last === 1 ? "st" : last === 2 ? "nd" : last === 3 ? "rd" : "th";
+      }
+      function formatLong(d) {
+        if (!d) return "—";
+        return `${d.getDate()}${ord(d.getDate())} ${MONTHS_LONG[d.getMonth()]}, ${d.getFullYear()}`;
+      }
+      function formatTrigger(s, e) {
+        if (!s && !e) return "All time";
+        if (!s || !e) return "Pick a range";
+        if (sameDay(s, e)) {
+          return `${s.getDate()} ${MONTHS_SHORT[s.getMonth()]}, ${s.getFullYear()}`;
+        }
+        const sameYear = s.getFullYear() === e.getFullYear();
+        if (sameYear) {
+          return `${s.getDate()} ${MONTHS_SHORT[s.getMonth()]} – ${e.getDate()} ${MONTHS_SHORT[e.getMonth()]}, ${e.getFullYear()}`;
+        }
+        return `${s.getDate()} ${MONTHS_SHORT[s.getMonth()]}, ${s.getFullYear()} – ${e.getDate()} ${MONTHS_SHORT[e.getMonth()]}, ${e.getFullYear()}`;
+      }
+      function daysBetween(a, b) {
+        return Math.round((startOfDay(b) - startOfDay(a)) / DAY_MS);
+      }
+
+      // ── Grid rendering ─────────────────────────────────────────
+      // Builds the structural day cells only (positions, dates, today).
+      // Range indicators (start/end/in-between) are painted SEPARATELY by
+      // paintRange() so that hovering doesn't recreate the DOM elements.
+      //
+      // The old approach (rebuild buttons on every mouseenter) had a subtle
+      // bug: between mousedown and mouseup, mouseenter could fire and destroy
+      // the button under the cursor, so the click event ended up on the grid
+      // container rather than the day — and pendingEnd never got set.
+      function buildGrid(monthDate, gridEl) {
+        gridEl.innerHTML = "";
+        const year = monthDate.getFullYear();
+        const month = monthDate.getMonth();
+        const first = new Date(year, month, 1);
+        const offset = first.getDay(); // Sun = 0
+        const start = new Date(year, month, 1 - offset);
+
+        for (let i = 0; i < 42; i++) {
+          const d = startOfDay(new Date(start.getFullYear(), start.getMonth(), start.getDate() + i));
+          const outside = d.getMonth() !== month;
+          const isToday = sameDay(d, TODAY);
+
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "datepicker__day";
+          btn.textContent = d.getDate();
+          btn.setAttribute("aria-label", formatLong(d));
+          btn.dataset.dateStamp = d.getTime();  // for in-place paint lookup
+          if (outside) btn.dataset.outside = "true";
+          if (isToday) btn.dataset.today = "true";
+
+          btn.addEventListener("click", (event) => {
+            event.stopPropagation();
+            onDayClick(d);
+          });
+          btn.addEventListener("mouseenter", () => {
+            if (pendingStart && !pendingEnd) {
+              if (!sameDay(d, hoverDate)) {
+                hoverDate = d;
+                paintRange();
+              }
+            }
+          });
+
+          gridEl.appendChild(btn);
+        }
+      }
+
+      // Updates data-range-start / data-range-end / data-in-range attributes
+      // on existing day buttons — without destroying them. Called whenever
+      // the range or hover preview changes.
+      function paintRange() {
+        let from = pendingStart;
+        let to = pendingEnd;
+        if (pendingStart && !pendingEnd && hoverDate) {
+          if (hoverDate < pendingStart) {
+            from = hoverDate;
+            to = pendingStart;
+          } else {
+            from = pendingStart;
+            to = hoverDate;
+          }
+        }
+        const fromTs = from ? startOfDay(from).getTime() : null;
+        const toTs = to ? startOfDay(to).getTime() : null;
+        const singleDay = fromTs !== null && fromTs === toTs;
+
+        picker.querySelectorAll(".datepicker__day").forEach((btn) => {
+          const ts = parseInt(btn.dataset.dateStamp, 10);
+          if (!ts) return;
+
+          // Outside-month days never inherit range styling — keeps the
+          // range painted only in the calendar that "owns" the date,
+          // so e.g. Jun 1-7 sitting in May's trailing row stay muted.
+          if (btn.dataset.outside === "true") {
+            delete btn.dataset.rangeStart;
+            delete btn.dataset.rangeEnd;
+            delete btn.dataset.inRange;
+            return;
+          }
+
+          const isStart = fromTs !== null && ts === fromTs;
+          const isEnd = !singleDay && toTs !== null && ts === toTs;
+          const inBetween = fromTs !== null && toTs !== null && ts > fromTs && ts < toTs;
+
+          if (isStart) btn.dataset.rangeStart = "true"; else delete btn.dataset.rangeStart;
+          if (isEnd) btn.dataset.rangeEnd = "true"; else delete btn.dataset.rangeEnd;
+          if (inBetween) btn.dataset.inRange = "true"; else delete btn.dataset.inRange;
+        });
+      }
+
+      function redrawGrids() {
+        buildGrid(viewMonth, leftGrid);
+        const nextMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1);
+        buildGrid(nextMonth, rightGrid);
+        paintRange();
+      }
+
+      function render() {
+        leftMonth.textContent = MONTHS_LONG[viewMonth.getMonth()];
+        leftYear.textContent = viewMonth.getFullYear();
+        const nextMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1);
+        rightMonth.textContent = MONTHS_LONG[nextMonth.getMonth()];
+        rightYear.textContent = nextMonth.getFullYear();
+
+        redrawGrids();
+
+        startDisplay.textContent = formatLong(pendingStart);
+        endDisplay.textContent = formatLong(pendingEnd);
+
+        updateActivePreset();
+      }
+
+      // ── Day click logic ────────────────────────────────────────
+      function onDayClick(d) {
+        const clicked = startOfDay(d);
+        if (!pendingStart || (pendingStart && pendingEnd)) {
+          // Fresh selection
+          pendingStart = clicked;
+          pendingEnd = null;
+        } else {
+          // Closing the range
+          if (clicked < pendingStart) {
+            pendingEnd = pendingStart;
+            pendingStart = clicked;
+          } else {
+            pendingEnd = clicked;
+          }
+        }
+        hoverDate = null;
+        render();
+      }
+
+      // ── Navigation ─────────────────────────────────────────────
+      picker.querySelectorAll("[data-nav]").forEach((btn) => {
+        btn.addEventListener("click", (event) => {
+          event.stopPropagation();
+          const dir = btn.dataset.nav === "prev" ? -1 : 1;
+          viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + dir, 1);
+          render();
+        });
+      });
+
+      // ── Presets ────────────────────────────────────────────────
+      function applyPreset(key) {
+        let s = null;
+        let e = null;
+        switch (key) {
+          case "today":
+            s = new Date(TODAY); e = new Date(TODAY);
+            break;
+          case "last-7":
+            s = new Date(TODAY); s.setDate(s.getDate() - 6); e = new Date(TODAY);
+            break;
+          case "last-30":
+            s = new Date(TODAY); s.setDate(s.getDate() - 29); e = new Date(TODAY);
+            break;
+          case "last-3m":
+            s = new Date(TODAY); s.setMonth(s.getMonth() - 3); e = new Date(TODAY);
+            break;
+          case "last-12m":
+            s = new Date(TODAY); s.setFullYear(s.getFullYear() - 1); e = new Date(TODAY);
+            break;
+          case "mtd":
+            s = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1); e = new Date(TODAY);
+            break;
+          case "ytd":
+            s = new Date(TODAY.getFullYear(), 0, 1); e = new Date(TODAY);
+            break;
+          case "all":
+            s = null; e = null;
+            break;
+        }
+        pendingStart = s ? startOfDay(s) : null;
+        pendingEnd = e ? startOfDay(e) : null;
+        if (s) viewMonth = new Date(s.getFullYear(), s.getMonth(), 1);
+        render();
+      }
+
+      function updateActivePreset() {
+        picker.querySelectorAll("[data-preset]").forEach((p) => p.removeAttribute("data-active"));
+        if (!pendingStart && !pendingEnd) {
+          picker.querySelector('[data-preset="all"]')?.setAttribute("data-active", "true");
+          return;
+        }
+        if (!pendingStart || !pendingEnd) return;
+        const checks = [
+          ["today", sameDay(pendingStart, TODAY) && sameDay(pendingEnd, TODAY)],
+          ["last-7", daysBetween(pendingStart, pendingEnd) === 6 && sameDay(pendingEnd, TODAY)],
+          ["last-30", daysBetween(pendingStart, pendingEnd) === 29 && sameDay(pendingEnd, TODAY)],
+          ["last-3m", sameDay(pendingEnd, TODAY) && sameDay(pendingStart, (() => { const x = new Date(TODAY); x.setMonth(x.getMonth() - 3); return startOfDay(x); })())],
+          ["last-12m", sameDay(pendingEnd, TODAY) && sameDay(pendingStart, (() => { const x = new Date(TODAY); x.setFullYear(x.getFullYear() - 1); return startOfDay(x); })())],
+          ["mtd", sameDay(pendingEnd, TODAY) && sameDay(pendingStart, startOfDay(new Date(TODAY.getFullYear(), TODAY.getMonth(), 1)))],
+          ["ytd", sameDay(pendingEnd, TODAY) && sameDay(pendingStart, startOfDay(new Date(TODAY.getFullYear(), 0, 1)))],
+        ];
+        for (const [key, match] of checks) {
+          if (match) {
+            picker.querySelector(`[data-preset="${key}"]`)?.setAttribute("data-active", "true");
+            break;
+          }
+        }
+      }
+
+      picker.querySelectorAll("[data-preset]").forEach((btn) => {
+        btn.addEventListener("click", (event) => {
+          event.stopPropagation();
+          applyPreset(btn.dataset.preset);
+        });
+      });
+
+      // ── Footer buttons ─────────────────────────────────────────
+      function closePicker() {
+        dropdown.dataset.open = "false";
+        trigger.setAttribute("aria-expanded", "false");
+        trigger.focus();
+      }
+
+      picker.querySelector("[data-datepicker-cancel]").addEventListener("click", (event) => {
+        event.stopPropagation();
+        pendingStart = rangeStart ? new Date(rangeStart) : null;
+        pendingEnd = rangeEnd ? new Date(rangeEnd) : null;
+        closePicker();
+      });
+
+      picker.querySelector("[data-datepicker-apply]").addEventListener("click", (event) => {
+        event.stopPropagation();
+        rangeStart = pendingStart ? new Date(pendingStart) : null;
+        rangeEnd = pendingEnd ? new Date(pendingEnd) : null;
+        triggerLabel.textContent = formatTrigger(rangeStart, rangeEnd);
+        document.dispatchEvent(new CustomEvent("chart:range-applied", {
+          detail: { start: rangeStart, end: rangeEnd, source: "picker" }
+        }));
+        closePicker();
+      });
+
+      // External range changes (from the bottom tabs) — sync our committed
+      // state and the trigger label, without re-dispatching.
+      document.addEventListener("chart:range-applied", (event) => {
+        if (event.detail.source === "picker") return;
+        rangeStart = event.detail.start ? new Date(event.detail.start) : null;
+        rangeEnd = event.detail.end ? new Date(event.detail.end) : null;
+        triggerLabel.textContent = formatTrigger(rangeStart, rangeEnd);
+      });
+
+      // ── Sync pending with current when dropdown opens/closes via the
+      //    framework (Esc, click-outside, re-click trigger) ──────
+      const observer = new MutationObserver(() => {
+        if (dropdown.dataset.open === "true") {
+          // Opened — sync pending FROM committed values
+          pendingStart = rangeStart ? new Date(rangeStart) : null;
+          pendingEnd = rangeEnd ? new Date(rangeEnd) : null;
+          hoverDate = null;
+          if (pendingStart) {
+            viewMonth = new Date(pendingStart.getFullYear(), pendingStart.getMonth(), 1);
+          }
+          render();
+        }
+      });
+      observer.observe(dropdown, { attributes: true, attributeFilter: ["data-open"] });
+
+      // Initial render + trigger label
+      render();
+      triggerLabel.textContent = formatTrigger(rangeStart, rangeEnd);
+    })();
+  </script>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       Interactive chart — data-driven, animated entry + transitions,
+       hover tooltip 8px above the marker, sync with date picker + tabs,
+       Custom tab when the range doesn't match a preset.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <script>
+    (function () {
+      const chartCard = document.querySelector(".card--chart");
+      if (!chartCard) return;
+      const chart = chartCard.querySelector("[data-chart]");
+      if (!chart) return;
+
+      const svg = chart.querySelector("svg");
+      const fillPath = chart.querySelector("[data-chart-fill]");
+      const linePath = chart.querySelector("[data-chart-line]");
+      const guide = chart.querySelector("[data-chart-guide]");
+      const hit = chart.querySelector("[data-chart-hit]");
+      const marker = chart.querySelector("[data-chart-marker]");
+      const tooltip = chart.querySelector("[data-chart-tooltip]");
+      const tooltipValue = tooltip.querySelector("[data-tooltip-value]");
+      const tooltipDate = tooltip.querySelector("[data-tooltip-date]");
+      const rangeTabs = chartCard.querySelectorAll("[data-range-tab]");
+
+      const W = 600;
+      const H = 220;
+      const PAD_TOP = 20;
+      const PAD_BOTTOM = 20;
+      const DAY_MS = 24 * 60 * 60 * 1000;
+      const TODAY = new Date(2026, 4, 21); // 21 May 2026
+
+      const MONTHS_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+      let currentMarkers = [];
+      let currentStepHours = 24;
+      let isAnimating = false;
+
+      // ── Helpers ────────────────────────────────────────────────
+      function startOfDay(d) {
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      }
+      function sameDay(a, b) {
+        return a && b && startOfDay(a).getTime() === startOfDay(b).getTime();
+      }
+      function pad(n) { return String(n).padStart(2, "0"); }
+
+      function formatDateLabel(d, stepHours) {
+        if (stepHours < 24) {
+          return `${pad(d.getHours())}:00 · ${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}`;
+        }
+        if (stepHours >= 24 * 28) {
+          return `${MONTHS_SHORT[d.getMonth()]} ${d.getFullYear()}`;
+        }
+        return `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}, ${d.getFullYear()}`;
+      }
+
+      // Deterministic pseudo-random — same range → same data on every render.
+      function seededRandom(seed) {
+        let s = Math.abs(Math.floor(seed)) % 233280;
+        return () => {
+          s = (s * 9301 + 49297) % 233280;
+          return s / 233280;
+        };
+      }
+
+      // ── Data generation ────────────────────────────────────────
+      function generateData(start, end) {
+        // "All time" sentinel — pick a 12-month window ending today.
+        if (!start || !end) {
+          end = new Date(TODAY);
+          start = new Date(TODAY); start.setFullYear(start.getFullYear() - 1);
+        }
+        let s = new Date(start);
+        let e = new Date(end);
+        if (s > e) { const tmp = s; s = e; e = tmp; }
+
+        // Single-day range → expand end to end-of-day so we render 24
+        // hourly points instead of one isolated point at midnight.
+        if (sameDay(s, e)) {
+          e = new Date(s);
+          e.setHours(23, 59, 59, 999);
+        }
+
+        const daysSpan = Math.max(1, Math.round((e - s) / DAY_MS) + 1);
+
+        let stepHours;
+        if (daysSpan <= 2) stepHours = 1;            // hourly
+        else if (daysSpan <= 14) stepHours = 6;      // 4x/day
+        else if (daysSpan <= 90) stepHours = 24;     // daily
+        else if (daysSpan <= 365) stepHours = 24 * 7;// weekly
+        else stepHours = 24 * 30;                    // monthly
+
+        const stepMs = stepHours * 60 * 60 * 1000;
+        const rand = seededRandom(s.getTime() + daysSpan);
+        const points = [];
+        const totalSteps = Math.ceil((e - s) / stepMs) + 1;
+
+        for (let i = 0; i <= totalSteps; i++) {
+          const t = new Date(s.getTime() + i * stepMs);
+          if (t > e) break;
+
+          const dow = t.getDay();
+          const hour = t.getHours();
+          const weekendDip = (dow === 0 || dow === 6) ? -25 : 0;
+          const nightDip = stepHours < 24 && (hour < 6 || hour > 22) ? -45 : 0;
+          const trend = (i / Math.max(1, totalSteps)) * 55;
+          const waveLen = Math.max(2, totalSteps / 4);
+          const wave = Math.sin((i / waveLen) * Math.PI * 2) * 38;
+          const noise = (rand() - 0.5) * 60;
+          const base = 175;
+
+          const value = Math.max(20, Math.round(base + trend + wave + weekendDip + nightDip + noise));
+          points.push({ date: t, value });
+        }
+
+        return { points, stepHours };
+      }
+
+      // ── Path computation ───────────────────────────────────────
+      function computePaths(points) {
+        if (!points.length) return { line: "", area: "", markers: [] };
+        if (points.length === 1) {
+          const x = W / 2, y = H / 2;
+          return {
+            line: `M${x},${y}`,
+            area: "",
+            markers: [{ x, y, date: points[0].date, value: points[0].value }],
+          };
+        }
+
+        const maxVal = Math.max(60, Math.max.apply(null, points.map((p) => p.value))) * 1.15;
+        const minVal = 0;
+
+        const xs = points.map((p, i) => (i / (points.length - 1)) * W);
+        const ys = points.map((p) =>
+          H - PAD_BOTTOM - ((p.value - minVal) / (maxVal - minVal)) * (H - PAD_TOP - PAD_BOTTOM)
+        );
+
+        // Smooth cubic-bezier path
+        let line = `M${xs[0].toFixed(2)},${ys[0].toFixed(2)}`;
+        for (let i = 1; i < points.length; i++) {
+          const dx = xs[i] - xs[i - 1];
+          const cp1x = xs[i - 1] + dx * 0.4;
+          const cp2x = xs[i] - dx * 0.4;
+          line += ` C${cp1x.toFixed(2)},${ys[i - 1].toFixed(2)} ${cp2x.toFixed(2)},${ys[i].toFixed(2)} ${xs[i].toFixed(2)},${ys[i].toFixed(2)}`;
+        }
+        const area = line + ` L${xs[xs.length - 1].toFixed(2)},${H} L${xs[0].toFixed(2)},${H} Z`;
+
+        const markers = points.map((p, i) => ({ x: xs[i], y: ys[i], date: p.date, value: p.value }));
+        return { line, area, markers };
+      }
+
+      // ── Animations ─────────────────────────────────────────────
+      // With vector-effect="non-scaling-stroke", stroke-dasharray is
+      // interpreted in *viewport pixels* while getTotalLength() returns
+      // user units. We sample the path at 60 points and apply the actual
+      // viewport scale to get the rendered length in screen pixels.
+      function getRenderedLength(pathEl) {
+        const rect = svg.getBoundingClientRect();
+        if (!rect.width || !rect.height) return pathEl.getTotalLength();
+        const xScale = rect.width / W;
+        const yScale = rect.height / H;
+        const userLen = pathEl.getTotalLength();
+        if (!userLen) return 0;
+        const STEPS = 60;
+        let total = 0;
+        let prev = pathEl.getPointAtLength(0);
+        for (let i = 1; i <= STEPS; i++) {
+          const cur = pathEl.getPointAtLength((i / STEPS) * userLen);
+          const dx = (cur.x - prev.x) * xScale;
+          const dy = (cur.y - prev.y) * yScale;
+          total += Math.sqrt(dx * dx + dy * dy);
+          prev = cur;
+        }
+        // Tiny padding to avoid sub-pixel rounding cutting the tail.
+        return total + 2;
+      }
+
+      let drawInToken = 0;
+      function drawInLine() {
+        const myToken = ++drawInToken;
+        const length = getRenderedLength(linePath);
+        linePath.style.transition = "none";
+        linePath.style.strokeDasharray = length;
+        linePath.style.strokeDashoffset = length;
+        linePath.style.opacity = "1";
+        void linePath.getBoundingClientRect();
+        linePath.style.transition = "stroke-dashoffset 700ms cubic-bezier(0.22, 0.61, 0.36, 1)";
+        linePath.style.strokeDashoffset = "0";
+        // After the draw-in completes, clear the dasharray so a window
+        // resize doesn't re-introduce a phantom dash.
+        setTimeout(() => {
+          if (myToken !== drawInToken) return; // a newer animation took over
+          linePath.style.strokeDasharray = "none";
+          linePath.style.strokeDashoffset = "0";
+        }, 750);
+      }
+
+      function renderChart(start, end, initial) {
+        const { points, stepHours } = generateData(start, end);
+        const { line, area, markers } = computePaths(points);
+        const newMarkers = markers;
+        const newStep = stepHours;
+
+        // Hide any open tooltip / marker / guide during transition.
+        guide.style.display = "none";
+        marker.style.display = "none";
+        tooltip.style.display = "none";
+
+        if (initial) {
+          linePath.setAttribute("d", line);
+          fillPath.setAttribute("d", area);
+          fillPath.style.opacity = "0";
+          fillPath.style.transition = "opacity 500ms ease-out 250ms";
+          currentMarkers = newMarkers;
+          currentStepHours = newStep;
+          requestAnimationFrame(() => {
+            drawInLine();
+            fillPath.style.opacity = "1";
+          });
+          return;
+        }
+
+        if (isAnimating) return;
+        isAnimating = true;
+
+        // Phase 1: fade out current chart
+        linePath.style.transition = "opacity 180ms ease-out";
+        fillPath.style.transition = "opacity 180ms ease-out";
+        linePath.style.opacity = "0";
+        fillPath.style.opacity = "0";
+
+        setTimeout(() => {
+          // Phase 2: swap paths and draw the new line in
+          linePath.setAttribute("d", line);
+          fillPath.setAttribute("d", area);
+          currentMarkers = newMarkers;
+          currentStepHours = newStep;
+
+          drawInLine();
+          fillPath.style.transition = "opacity 500ms ease-out 150ms";
+          fillPath.style.opacity = "1";
+
+          // Phase 3: free the lock after the draw-in finishes
+          setTimeout(() => { isAnimating = false; }, 750);
+        }, 200);
+      }
+
+      // ── Interaction ────────────────────────────────────────────
+      function onMouseMove(event) {
+        if (!currentMarkers.length || isAnimating) return;
+        const rect = svg.getBoundingClientRect();
+        const svgX = (event.clientX - rect.left) * (W / rect.width);
+
+        let nearest = currentMarkers[0];
+        let minDist = Infinity;
+        for (const m of currentMarkers) {
+          const d = Math.abs(m.x - svgX);
+          if (d < minDist) { minDist = d; nearest = m; }
+        }
+
+        // Guide line follows the nearest marker
+        guide.setAttribute("x1", nearest.x);
+        guide.setAttribute("x2", nearest.x);
+        guide.style.display = "";
+
+        // Marker + tooltip in screen coords relative to the chart container
+        const xScale = rect.width / W;
+        const yScale = rect.height / H;
+        const screenX = nearest.x * xScale;
+        const screenY = nearest.y * yScale;
+
+        marker.style.left = `${screenX}px`;
+        marker.style.top = `${screenY}px`;
+        marker.style.display = "";
+
+        // Tooltip 8px above the marker:
+        //   marker visible top = screenY - 6  (radius 6px)
+        //   tooltip bottom     = marker top - 8
+        //   with translate(-50%, -100%), tooltip `top` IS the bottom edge
+        //   ⇒ top = screenY - 14
+        tooltipValue.textContent = `${nearest.value.toLocaleString()} tasks`;
+        tooltipDate.textContent = formatDateLabel(nearest.date, currentStepHours);
+        tooltip.style.left = `${screenX}px`;
+        tooltip.style.top = `${screenY - 14}px`;
+        tooltip.style.display = "";
+      }
+
+      function onMouseLeave() {
+        guide.style.display = "none";
+        marker.style.display = "none";
+        tooltip.style.display = "none";
+      }
+
+      hit.addEventListener("mousemove", onMouseMove);
+      hit.addEventListener("mouseleave", onMouseLeave);
+
+      // ── Range tabs ─────────────────────────────────────────────
+      function rangeForTab(key) {
+        const today = startOfDay(TODAY);
+        const start = new Date(today);
+        switch (key) {
+          case "1d": return { start: new Date(today), end: new Date(today) };
+          case "5d": start.setDate(start.getDate() - 4); return { start, end: new Date(today) };
+          case "1m": start.setDate(start.getDate() - 29); return { start, end: new Date(today) };
+          case "3m": start.setMonth(start.getMonth() - 3); return { start, end: new Date(today) };
+          case "6m": start.setMonth(start.getMonth() - 6); return { start, end: new Date(today) };
+          case "1y": start.setFullYear(start.getFullYear() - 1); return { start, end: new Date(today) };
+        }
+        return null;
+      }
+
+      function detectPreset(start, end) {
+        if (!start || !end) return null;
+        const today = startOfDay(TODAY);
+        if (!sameDay(end, today)) return null;
+        if (sameDay(start, today)) return "1d";
+        const sStart = startOfDay(start);
+
+        const probes = [
+          ["5d", (() => { const x = new Date(today); x.setDate(x.getDate() - 4); return x; })()],
+          ["1m", (() => { const x = new Date(today); x.setDate(x.getDate() - 29); return x; })()],
+          ["3m", (() => { const x = new Date(today); x.setMonth(x.getMonth() - 3); return x; })()],
+          ["6m", (() => { const x = new Date(today); x.setMonth(x.getMonth() - 6); return x; })()],
+          ["1y", (() => { const x = new Date(today); x.setFullYear(x.getFullYear() - 1); return x; })()],
+        ];
+        for (const [key, probeStart] of probes) {
+          if (sameDay(sStart, probeStart)) return key;
+        }
+        return null;
+      }
+
+      function updateActiveTab(start, end) {
+        const preset = detectPreset(start, end);
+        const customTab = chartCard.querySelector('[data-range-tab="custom"]');
+
+        rangeTabs.forEach((tab) => {
+          if (tab.dataset.rangeTab === "custom") return;
+          tab.setAttribute("aria-pressed", tab.dataset.rangeTab === preset ? "true" : "false");
+        });
+
+        if (preset === null) {
+          customTab.removeAttribute("data-hidden");
+          customTab.setAttribute("aria-pressed", "true");
+        } else {
+          customTab.setAttribute("data-hidden", "true");
+          customTab.setAttribute("aria-pressed", "false");
+        }
+      }
+
+      rangeTabs.forEach((tab) => {
+        tab.addEventListener("click", (event) => {
+          event.stopPropagation();
+          if (tab.dataset.rangeTab === "custom") return; // not directly clickable
+          const range = rangeForTab(tab.dataset.rangeTab);
+          if (!range) return;
+          document.dispatchEvent(new CustomEvent("chart:range-applied", {
+            detail: { start: range.start, end: range.end, source: "tab" }
+          }));
+        });
+      });
+
+      // ── Wire to picker + tabs ─────────────────────────────────
+      document.addEventListener("chart:range-applied", (event) => {
+        renderChart(event.detail.start, event.detail.end, false);
+        updateActiveTab(event.detail.start, event.detail.end);
+      });
+
+      // ── Initial render ────────────────────────────────────────
+      const initEnd = startOfDay(TODAY);
+      const initStart = new Date(initEnd); initStart.setDate(initStart.getDate() - 29);
+      renderChart(initStart, initEnd, true);
+      updateActiveTab(initStart, initEnd);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+/* Hallmark · v4 dashboard tokens · genre: modern-minimal · theme: studied-DNA
+ * vibe: "polished consumer-SaaS · approachable enterprise · fintech-warmth"
+ * v3 baseline with typography swap — Be Vietnam Pro as body, Geist Mono
+ * reused for tags / kickers / short descriptive text. No CSS-driven
+ * uppercase anywhere.
+ *
+ * Reference values by name only — no inline OKLCH in page CSS.
+ */
+
+:root {
+  /* ════════════════════════════════════════════════════════════════════
+   * NEUTRAL — slate-green ramp (user-supplied)
+   * Cool-tinted, with the slate quality most visible in the midtones
+   * (500–700). Hue centred at ~195° (cyan-green), chroma peaks at 0.018
+   * in the middle and tapers toward both ends of the ramp.
+   * ════════════════════════════════════════════════════════════════════ */
+  --color-neutral-0:    oklch(100%  0     0);
+  --color-neutral-50:   oklch(97.5% 0.003 200);
+  --color-neutral-100:  oklch(93.5% 0.004 200);
+  --color-neutral-200:  oklch(89.0% 0.006 198);
+  --color-neutral-300:  oklch(80.0% 0.010 196);
+  --color-neutral-400:  oklch(68.0% 0.015 192);
+  --color-neutral-500:  oklch(56.0% 0.018 192);
+  --color-neutral-600:  oklch(44.0% 0.018 192);
+  --color-neutral-700:  oklch(33.0% 0.014 195);
+  --color-neutral-800:  oklch(24.0% 0.010 198);
+  --color-neutral-900:  oklch(13.5% 0.007 200);
+
+  /* ════════════════════════════════════════════════════════════════════
+   * PRIMARY — deep teal / forest green (DaPay anchor)
+   * ════════════════════════════════════════════════════════════════════ */
+  --color-primary-50:   oklch(96.5% 0.010 175);
+  --color-primary-100:  oklch(90.0% 0.025 175);
+  --color-primary-200:  oklch(80.0% 0.045 175);
+  --color-primary-300:  oklch(65.0% 0.060 175);
+  --color-primary-400:  oklch(52.0% 0.065 175);
+  --color-primary-500:  oklch(40.0% 0.062 175);
+  --color-primary-600:  oklch(35.0% 0.060 175);   /* anchor — sidebar active, featured card */
+  --color-primary-700:  oklch(28.0% 0.055 175);
+  --color-primary-800:  oklch(22.0% 0.045 175);
+  --color-primary-900:  oklch(16.0% 0.035 175);
+
+  /* ════════════════════════════════════════════════════════════════════
+   * SIGNAL — electric lime (DaPay brand accent)
+   * Used on CTAs, brand mark, chart peak callout, featured-card highlight
+   * ════════════════════════════════════════════════════════════════════ */
+  --color-signal-100:   oklch(96.0% 0.075 115);
+  --color-signal-300:   oklch(93.0% 0.150 115);
+  --color-signal-400:   oklch(90.0% 0.190 115);   /* anchor — primary CTA, highlights */
+  --color-signal-500:   oklch(80.0% 0.180 115);
+  --color-signal-700:   oklch(58.0% 0.130 112);
+  --color-signal-glow:  oklch(90% 0.19 115 / 0.32);
+
+  /* ════════════════════════════════════════════════════════════════════
+   * CATEGORY PASTELS — soft taxonomy colours for operation types
+   * Low chroma (≤ 0.05) so they read as "tag, not accent"
+   * ════════════════════════════════════════════════════════════════════ */
+  --color-cat-mint-bg:    oklch(95.5% 0.040 155);
+  --color-cat-mint-fg:    oklch(45.0% 0.090 155);
+  --color-cat-blush-bg:   oklch(95.0% 0.035 10);
+  --color-cat-blush-fg:   oklch(50.0% 0.110 10);
+  --color-cat-sky-bg:     oklch(94.5% 0.040 235);
+  --color-cat-sky-fg:     oklch(45.0% 0.110 235);
+  --color-cat-lavender-bg: oklch(94.5% 0.035 295);
+  --color-cat-lavender-fg: oklch(45.0% 0.110 295);
+  --color-cat-amber-bg:   oklch(95.5% 0.045 75);
+  --color-cat-amber-fg:   oklch(50.0% 0.130 75);
+
+  /* ════════════════════════════════════════════════════════════════════
+   * STATUS
+   * ════════════════════════════════════════════════════════════════════ */
+  --color-success-50:   oklch(96.0% 0.025 145);
+  --color-success-500:  oklch(62.0% 0.170 145);
+  --color-warning-500:  oklch(72.0% 0.150 55);
+  --color-error-500:    oklch(64.0% 0.180 25);
+
+  /* ════════════════════════════════════════════════════════════════════
+   * SEMANTIC ROLES
+   * ════════════════════════════════════════════════════════════════════ */
+  --color-paper:           var(--color-neutral-50);
+  --color-paper-2:         var(--color-neutral-0);    /* card surface */
+  --color-paper-3:         var(--color-neutral-100);  /* hover wash */
+  --color-paper-sunk:      var(--color-neutral-100);
+  --color-paper-dark:      var(--color-primary-600);  /* featured card, sidebar active */
+  --color-paper-dark-2:    var(--color-primary-700);
+
+  --color-ink:             var(--color-neutral-900);
+  --color-ink-2:           var(--color-neutral-700);
+  --color-ink-3:           var(--color-neutral-500);
+  --color-ink-mute:        var(--color-neutral-400);
+  --color-ink-inv:         var(--color-neutral-0);
+  --color-ink-inv-2:       var(--color-neutral-300);
+
+  --color-rule:            var(--color-neutral-200);
+  --color-rule-strong:     var(--color-neutral-300);
+  --color-rule-dark:       oklch(28% 0.055 175);     /* on primary surfaces */
+
+  --color-accent:          var(--color-primary-600);  /* deep teal */
+  --color-accent-hover:    var(--color-primary-700);
+  --color-accent-soft:     var(--color-primary-50);
+
+  --color-signal:          var(--color-signal-400);   /* electric lime */
+  --color-signal-hover:    var(--color-signal-500);
+
+  --color-focus:           var(--color-primary-500);
+
+  /* ════════════════════════════════════════════════════════════════════
+   * SHADOWS — soft elevated card surfaces (DaPay register)
+   * ════════════════════════════════════════════════════════════════════ */
+  --shadow-card:    0 1px 2px oklch(0% 0 0 / 0.04), 0 4px 12px oklch(0% 0 0 / 0.04);
+  --shadow-pop:     0 4px 16px oklch(0% 0 0 / 0.08), 0 1px 3px oklch(0% 0 0 / 0.05);
+  --shadow-signal:  0 8px 24px var(--color-signal-glow);
+
+  /* ════════════════════════════════════════════════════════════════════
+   * TYPE
+   * ════════════════════════════════════════════════════════════════════ */
+  --font-body:    "Be Vietnam Pro", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Scale — ratio 1.25 */
+  --text-2xs:    0.6875rem;
+  --text-xs:     0.75rem;
+  --text-sm:     0.8125rem;
+  --text-base:   0.875rem;
+  --text-md:     1rem;
+  --text-lg:     1.25rem;
+  --text-xl:     1.5rem;
+  --text-2xl:    1.875rem;
+  --text-3xl:    2.5rem;
+  --text-stat:   2.25rem;
+  --text-hero:   clamp(2.25rem, 4vw + 0.5rem, 3.25rem);
+
+  /* ════════════════════════════════════════════════════════════════════
+   * SPACING — 4pt scale
+   * ════════════════════════════════════════════════════════════════════ */
+  --space-1:    0.25rem;
+  --space-2:    0.5rem;
+  --space-3:    0.75rem;
+  --space-4:    1rem;
+  --space-5:    1.25rem;
+  --space-6:    1.5rem;
+  --space-8:    2rem;
+  --space-10:   2.5rem;
+  --space-12:   3rem;
+
+  /* ════════════════════════════════════════════════════════════════════
+   * RADIUS / MOTION / LAYOUT
+   * ════════════════════════════════════════════════════════════════════ */
+  --radius-xs:    4px;
+  --radius-sm:    8px;
+  --radius-md:    12px;
+  --radius-lg:    16px;
+  --radius-xl:    20px;
+  --radius-pill:  999px;
+  --rule-hair:    1px;
+
+  --ease-out:     cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-in:      cubic-bezier(0.55, 0.06, 0.68, 0.19);
+  --ease-in-out:  cubic-bezier(0.65, 0.05, 0.36, 1);
+  --dur-fast:     150ms;
+  --dur-base:     220ms;
+  --dur-slow:     320ms;
+
+  --sidebar-w:    232px;
+  --topbar-h:     72px;
+  --content-max:  1480px;
+}
